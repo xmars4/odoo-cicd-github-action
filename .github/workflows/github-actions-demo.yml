@@ -124,6 +124,17 @@ jobs:
                   source: ${{env.SERVER_BACKUP_SCRIPT}}
                   target: /tmp/server-backup.sh
 
+            - name: "Upload script file"
+              uses: nicklasfrahm/scp-action@main
+              with:
+                  direction: upload
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  insecure_password: ${{ env.SERVER_PASSWORD }}
+                  insecure_ignore_fingerprint: true
+                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
+                  target: /tmp/server-backup-hihi.sh
+
             - name: "Integration test"
               uses: appleboy/ssh-action@v1.0.0
               with:
