@@ -95,7 +95,7 @@ jobs:
     integration-test:
         runs-on: ubuntu-latest
         env:
-            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts
+            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
             SERVER_DOCKER_COMPOSE_PATH: $SERVER_DEPLOY_PATH/
         #fixme: uncomment needs
         # if: github.event.action == 'closed' && github.event.pull_request.merged == true
