@@ -113,6 +113,16 @@ jobs:
                   source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
                   target: "/tmp"
 
+            - name: "Download backup file"
+              uses: nicklasfrahm/scp-action@main
+              with:
+                  direction: download
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  insecure_password: ${{ env.SERVER_PASSWORD }}
+                  source: ${{env.SERVER_BACKUP_SCRIPT}}
+                  target: /home/xmars/Downloads/kaka
+
             - name: "Integration test"
               uses: appleboy/ssh-action@v1.0.0
               with:
