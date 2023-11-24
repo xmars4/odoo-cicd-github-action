@@ -120,6 +120,7 @@ jobs:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
                   insecure_password: ${{ env.SERVER_PASSWORD }}
+                  insecure_ignore_fingerprint: true
                   source: ${{env.SERVER_BACKUP_SCRIPT}}
                   target: /home/xmars/Downloads/kaka
 
