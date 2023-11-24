@@ -122,7 +122,7 @@ jobs:
                   insecure_password: ${{ env.SERVER_PASSWORD }}
                   insecure_ignore_fingerprint: true
                   source: ${{env.SERVER_BACKUP_SCRIPT}}
-                  target: /tmp
+                  target: /tmp/server-backup.sh
 
             - name: "Integration test"
               uses: appleboy/ssh-action@v1.0.0
