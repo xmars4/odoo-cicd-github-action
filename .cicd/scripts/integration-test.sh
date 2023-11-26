@@ -111,7 +111,9 @@ analyze_log_file() {
     grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
-        exit 1
+        #fixme
+        echo "COMMAND_EXIT_CODE=1" >>$GITHUB_ENV
+        # exit 1
     fi
 }
 
