@@ -106,15 +106,15 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            # - name: "Upload backup script file to server"
-            #   uses: appleboy/scp-action@v0.1.4
-            #   with:
-            #       host: ${{ env.SERVER_HOST }}
-            #       username: ${{ env.SERVER_USER }}
-            #       password: ${{ env.SERVER_PASSWORD }}
-            #       port: ${{ env.SERVER_PORT }}
-            #       source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
-            #       target: "/tmp"
+            - name: "Upload backup script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
+                  target: "/tmp"
 
             # - name: "Backup Odoo in server"
             #   uses: appleboy/ssh-action@v1.0.0
