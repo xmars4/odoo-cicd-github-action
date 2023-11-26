@@ -4,7 +4,7 @@ source "${PIPELINE_UTILS_SCRIPT_PATH}"
 populate_variables() {
     declare -g received_backup_file_path=$1
     declare -g odoo_container_store_backup_folder="/tmp/odoo/restore"
-    declare -g extracted_backup_folder_name=$(basename $received_backup_file_path | sed "s/.tar.gz//")
+    declare -g extracted_backup_folder_name=odoo
 
     declare -g db_host=$(get_config_value "db_host")
     declare -g db_host=${db_host:-'db'}
@@ -52,6 +52,7 @@ copy_backup() {
     docker_odoo_exec "mkdir -p $odoo_container_store_backup_folder"
     docker cp "$received_backup_file_path" $odoo_container_id:$odoo_container_store_backup_folder
     docker_odoo_exec "cd $odoo_container_store_backup_folder && tar -xzf $received_backup_file_name"
+    docker_odoo_exec "find $odoo_container_store_backup_folder"
 }
 
 config_psql_without_password() {
@@ -93,8 +94,6 @@ restore_backup() {
     start_instance
     copy_backup
     config_psql_without_password
-    #fixme:
-    ls -lah /tmp/odoo/restore/odoo
     create_empty_db
     restore_db
     restore_filestore
