@@ -143,9 +143,27 @@ jobs:
 
     deploy-server:
         runs-on: ubuntu-latest
+        env:
+            SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/deploy.sh
         # if: github.event.action == 'closed' && github.event.pull_request.merged == true
         # needs: [integration-test]
         steps:
+            - name: "Upload deploy script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/deploy.sh
+                  target: "/tmp"
+
             - name: "Deploy to server"
-              run: |
-                  echo "DONE"
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  script: |
+                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}/.." "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
