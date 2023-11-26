@@ -98,6 +98,7 @@ jobs:
             SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
+            LOCAL_BACKUP_FILE: odoo.tar.gz
         #fixme: uncomment needs
         # if: github.event.action == 'closed' && github.event.pull_request.merged == true
         # needs: [pylint-test, unit-test-at-install, unit-test-post-install]
@@ -144,12 +145,13 @@ jobs:
                   insecure_password: ${{ env.SERVER_PASSWORD }}
                   insecure_ignore_fingerprint: true
                   source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-                  target: ${{ env.LOCAL_BACKUP_FILE_PATH }}
+                  target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
             - name: "Integration test"
               run: |
-                  ls -lath /tmp
+                  ls -lath .
                   pwd
+                  ls -lath ${{github.workspace}}
                   echo "=============="
                   bash $PIPELINE_SCRIPTS_PATH/integration-test.sh $LOCAL_BACKUP_FILE_PATH
                   echo $COMMAND_EXIT_CODE
