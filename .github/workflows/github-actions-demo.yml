@@ -105,46 +105,46 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: "Upload backup script file to server"
-              uses: appleboy/scp-action@v0.1.4
-              with:
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  password: ${{ env.SERVER_PASSWORD }}
-                  port: ${{ env.SERVER_PORT }}
-                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
-                  target: "/tmp"
-
-            - name: "Backup Odoo in server"
-              uses: appleboy/ssh-action@v1.0.0
-              with:
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  password: ${{ env.SERVER_PASSWORD }}
-                  port: ${{ env.SERVER_PORT }}
-                  script: |
-                      bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
-
-            - name: try download
-              uses: cross-the-world/ssh-scp-ssh-pipelines@latest
-              with:
-                  host: ${{ env.SERVER_HOST }}
-                  user: ${{ env.SERVER_USER }}
-                  pass: ${{ env.SERVER_PASSWORD }}
-                  port: ${{env.SERVER_PORT}}
-                  scp: |
-                      ${{env.SERVER_LATEST_BACKUP_FILE_PATH}} =>  ${{ env.LOCAL_BACKUP_FILE_PATH }}
-
-            # - name: "Download backup file"
-            #   uses: nicklasfrahm/scp-action@main
+            # - name: "Upload backup script file to server"
+            #   uses: appleboy/scp-action@v0.1.4
             #   with:
-            #       direction: download
             #       host: ${{ env.SERVER_HOST }}
             #       username: ${{ env.SERVER_USER }}
-            #       insecure_password: ${{ env.SERVER_PASSWORD }}
-            #       insecure_ignore_fingerprint: true
-            #       source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-            #       target: ${{ env.LOCAL_BACKUP_FILE_PATH }}
+            #       password: ${{ env.SERVER_PASSWORD }}
+            #       port: ${{ env.SERVER_PORT }}
+            #       source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
+            #       target: "/tmp"
+
+            # - name: "Backup Odoo in server"
+            #   uses: appleboy/ssh-action@v1.0.0
+            #   with:
+            #       host: ${{ env.SERVER_HOST }}
+            #       username: ${{ env.SERVER_USER }}
+            #       password: ${{ env.SERVER_PASSWORD }}
+            #       port: ${{ env.SERVER_PORT }}
+            #       script: |
+            #           bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
+
+            # - name: try download
+            #   uses: cross-the-world/ssh-scp-ssh-pipelines@latest
+            #   with:
+            #       host: ${{ env.SERVER_HOST }}
+            #       user: ${{ env.SERVER_USER }}
+            #       pass: ${{ env.SERVER_PASSWORD }}
+            #       port: ${{env.SERVER_PORT}}
+            #       scp: |
+            #           ${{env.SERVER_LATEST_BACKUP_FILE_PATH}} =>  ${{ env.LOCAL_BACKUP_FILE_PATH }}
+
+            - name: "Download backup file"
+              uses: nicklasfrahm/scp-action@main
+              with:
+                  direction: download
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  insecure_password: ${{ env.SERVER_PASSWORD }}
+                  insecure_ignore_fingerprint: true
+                  source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
+                  target: ${{ env.LOCAL_BACKUP_FILE_PATH }}
 
             - name: "Integration test"
               run: |
