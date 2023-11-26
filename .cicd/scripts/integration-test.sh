@@ -40,7 +40,7 @@ function update_config_file_after_restoration {
     --workers 0 \
     --database $ODOO_TEST_DATABASE_NAME \
     --logfile $LOG_FILE \
-    --log-level info \
+    --log-level error \
     --update $custom_addons \
     --init $install_addons \
     --test-tags ${tagged_custom_addons}\n" >>$CONFIG_FILE
@@ -112,9 +112,14 @@ analyze_log_file() {
     grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
-        #fixme
-        echo "COMMAND_EXIT_CODE=1" >>$GITHUB_ENV
-        # exit 1
+        message=$(
+            cat <<EOF
+🐞The [PR \\#$PR_NUMBER]($PR_URL) was merged but the deployment to the server failed\\!🐞
+Please take a look at the attached log file🔬
+EOF
+        )
+        send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$message"
+        exit 1
     fi
 }
 
