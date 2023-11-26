@@ -113,6 +113,7 @@ analyze_log_file() {
     if [ $error_exist -eq 0 ]; then
         #fixme
         echo "COMMAND_EXIT_CODE=1" >>$GITHUB_ENV
+        COMMAND_EXIT_CODE=2
         # exit 1
     fi
 }
