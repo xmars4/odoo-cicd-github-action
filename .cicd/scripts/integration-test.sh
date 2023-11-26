@@ -107,7 +107,8 @@ analyze_log_file() {
     if [ $? -ne 0 ]; then
         return 0
     fi
-
+    cat $LOG_FILE_OUTSIDE
+    cat $CONFIG_FILE
     grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
