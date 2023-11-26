@@ -95,7 +95,8 @@ jobs:
     integration-test:
         runs-on: ubuntu-latest
         env:
-            SERVER_BACKUP_SCRIPT: /tmp/odoo/cicd/server-backup.sh
+            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
+            # SERVER_BACKUP_SCRIPT: /tmp/odoo/cicd/server-backup.sh
             SERVER_DOCKER_COMPOSE_PATH: $SERVER_DEPLOY_PATH
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
@@ -107,15 +108,14 @@ jobs:
               uses: actions/checkout@v4
 
             - name: "Upload backup script file to server"
-              uses: nicklasfrahm/scp-action@main
+              uses: appleboy/scp-action@v0.1.4
               with:
-                  direction: upload
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  insecure_password: ${{ env.SERVER_PASSWORD }}
-                  insecure_ignore_fingerprint: true
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
                   source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
-                  target: ${{ env.SERVER_BACKUP_SCRIPT }}
+                  target: "/tmp"
 
             - name: "Backup Odoo in server"
               uses: appleboy/ssh-action@v1.0.0
