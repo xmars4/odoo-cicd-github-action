@@ -119,11 +119,8 @@ analyze_log_file() {
 
 main() {
     populate_variables $@
-    #fixme:
-    ls -lah /tmp
-    ls -lah .
-    # restore_backup
-    # analyze_log_file
+    restore_backup
+    analyze_log_file
 }
 
 main $@
