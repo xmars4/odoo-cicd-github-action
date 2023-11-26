@@ -125,6 +125,10 @@ jobs:
                   password: ${{ env.SERVER_PASSWORD }}
                   port: ${{ env.SERVER_PORT }}
                   script: |
+                      echo $SERVER_BACKUP_SCRIPT
+                      echo $SERVER_DOCKER_COMPOSE_PATH
+                      echo $SERVER_ODOO_DB_NAME
+                      echo $SERVER_ODOO_IMAGE_TAG
                       bash $SERVER_BACKUP_SCRIPT "$SERVER_DOCKER_COMPOSE_PATH" "$SERVER_ODOO_DB_NAME" "$SERVER_ODOO_IMAGE_TAG"
 
             - name: "Download backup file"
