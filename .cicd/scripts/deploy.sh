@@ -2,8 +2,9 @@
 server_docker_compose_path=$1 # the path to folder container Odoo docker-compose.yml file
 server_custom_addons_path=$2  # the absolute path to source code, also the git repository
 server_config_file=$3         # the path to Odoo config file
-git_private_key_file=$4       # private key on server use to authenticate on Github
-server_odoo_url=$5            # odoo service url, to check service is up or not
+# fixme: can't pass private key file from github action to server like Jenkins, solution ??
+git_private_key_file=$4 # private key on server use to authenticate on Github
+server_odoo_url=$5      # odoo service url, to check service is up or not
 
 ssh_folder="$HOME/.ssh"
 original_repo_remote_name="origin"

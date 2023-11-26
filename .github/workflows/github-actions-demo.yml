@@ -6,7 +6,7 @@ on:
 
 env:
     CICD_ODOO_OPTIONS: ${{ github.workspace }}/.cicd/conf/odoo.json
-    ODOO_CUSTOM_ADDONS_PATH: .
+    ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
     PIPELINE_SCRIPTS_PATH: ${{ github.workspace }}/.cicd/scripts
     PIPELINE_UTILS_SCRIPT_PATH: ${{ github.workspace }}/.cicd/scripts/utils.sh
     ODOO_IMAGE_TAG: xmars/odoo16-cicd
@@ -38,72 +38,73 @@ env:
 
 jobs:
     # TODO: integrate with Sonarqube
-    # pylint-test:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
-    #         - name: Prepare data for containers
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/build.sh "pylint"
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    #               up-flags: "--build --quiet-pull"
-    #               down-flags: "--volumes"
-    #         - name: Run Pylint Test cases
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/pylint-test.sh
-
-    # unit-test-at-install:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
-    #         - name: Prepare data for containers
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/build.sh "unit_test" "at_install"
-    #               cat $CONFIG_FILE
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    #               up-flags: "--build --quiet-pull"
-    #               down-flags: "--volumes"
-    #         - name: Run Unit test cases
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/unit-test.sh
-
-    # unit-test-post-install:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    # - name: Checkout
-    #   uses: actions/checkout@v4
-    # - name: Prepare data for containers
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/build.sh "unit_test" "post_install"
-    #               cat $CONFIG_FILE
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    #               up-flags: "--build --quiet-pull"
-    #               down-flags: "--volumes"
-    #         - name: Run Unit test cases
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/unit-test.sh
-
-    # TODO: integrationtest and deploy server
-    integration-test:
+    pylint-test:
         runs-on: ubuntu-latest
-        env:
-            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts
-            SERVER_DOCKER_COMPOSE_PATH: $SERVER_DEPLOY_PATH/
-        #fixme: uncomment needs
-        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        # needs: [pylint-test, unit-test-at-install, unit-test-post-install]
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-            - name: "Copy backup script file"
+            - name: Prepare data for containers
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/build.sh "pylint"
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+                  up-flags: "--build --quiet-pull"
+                  down-flags: "--volumes"
+            - name: Run Pylint Test cases
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/pylint-test.sh
+
+    unit-test-at-install:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Prepare data for containers
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/build.sh "unit_test" "at_install"
+                  cat $CONFIG_FILE
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+                  up-flags: "--build --quiet-pull"
+                  down-flags: "--volumes"
+            - name: Run Unit test cases
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/unit-test.sh
+
+    unit-test-post-install:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Prepare data for containers
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/build.sh "unit_test" "post_install"
+                  cat $CONFIG_FILE
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+                  up-flags: "--build --quiet-pull"
+                  down-flags: "--volumes"
+            - name: Run Unit test cases
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/unit-test.sh
+
+    integration-test:
+        runs-on: ubuntu-latest
+        env:
+            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
+            SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
+            LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
+            LOCAL_BACKUP_FILE: odoo.tar.gz
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [pylint-test, unit-test-at-install, unit-test-post-install]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: "Upload backup script file to server"
               uses: appleboy/scp-action@v0.1.4
               with:
                   host: ${{ env.SERVER_HOST }}
@@ -113,7 +114,7 @@ jobs:
                   source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
                   target: "/tmp"
 
-            - name: "Integration test"
+            - name: "Backup Odoo on server"
               uses: appleboy/ssh-action@v1.0.0
               with:
                   host: ${{ env.SERVER_HOST }}
@@ -121,19 +122,53 @@ jobs:
                   password: ${{ env.SERVER_PASSWORD }}
                   port: ${{ env.SERVER_PORT }}
                   script: |
-                      docker ps -a
-                      ls -lah /tmp
+                      bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
 
-    # deploy-server:
-    #     runs-on: ubuntu-latest
-    #     if: github.event.action == 'closed' && github.event.pull_request.merged == true
-    #     needs: [integration-test]
-    #     steps:
-    #         - name: Use variables
-    #           run: |
-    #               echo "repository variable : $REPOSITORY_VAR"
-    #               echo "organization variable : $ORGANIZATION_VAR"
-    #               echo "overridden variable : $OVERRIDE_VAR"
-    #               echo "variable from shell environment : $env_var"
-    #           env:
-    #               ab: 1
+            - name: "Download backup file"
+              uses: nicklasfrahm/scp-action@main
+              with:
+                  direction: download
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  insecure_password: ${{ env.SERVER_PASSWORD }}
+                  insecure_ignore_fingerprint: true
+                  source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
+                  target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+
+            - name: "Integration test"
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+
+    deploy-server:
+        runs-on: ubuntu-latest
+        env:
+            SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/deploy.sh
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [integration-test]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: "Upload deploy script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/deploy.sh
+                  target: "/tmp"
+
+            - name: "Deploy to server"
+              uses: appleboy/ssh-action@v1.0.0
+              env:
+                  SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
+                  SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
+                  SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  script: |
+                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"

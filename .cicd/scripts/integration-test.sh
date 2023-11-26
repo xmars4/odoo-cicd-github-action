@@ -4,7 +4,7 @@ source "${PIPELINE_UTILS_SCRIPT_PATH}"
 populate_variables() {
     declare -g received_backup_file_path=$1
     declare -g odoo_container_store_backup_folder="/tmp/odoo/restore"
-    declare -g extracted_backup_folder_name=$(basename $received_backup_file_path | sed "s/.tar.gz//")
+    declare -g extracted_backup_folder_name=odoo
 
     declare -g db_host=$(get_config_value "db_host")
     declare -g db_host=${db_host:-'db'}
@@ -14,6 +14,13 @@ populate_variables() {
     declare -g db_password=$(get_config_value "db_password")
     declare -g data_dir=$(get_config_value "data_dir")
     declare -g data_dir=${data_dir:-'/var/lib/odoo'}
+}
+
+function copy_requirements_txt_file {
+    if [[ -f "$SOURCE_REQUIREMENTS_FILE" ]]; then
+        echo "" >>$DOCKER_REQUIREMENTS_FILE
+        cat $SOURCE_REQUIREMENTS_FILE >>$DOCKER_REQUIREMENTS_FILE
+    fi
 }
 
 get_config_value() {
@@ -40,7 +47,7 @@ function update_config_file_after_restoration {
     --workers 0 \
     --database $ODOO_TEST_DATABASE_NAME \
     --logfile $LOG_FILE \
-    --log-level info \
+    --log-level error \
     --update $custom_addons \
     --init $install_addons \
     --test-tags ${tagged_custom_addons}\n" >>$CONFIG_FILE
@@ -51,7 +58,7 @@ copy_backup() {
     received_backup_file_name=$(basename $received_backup_file_path)
     docker_odoo_exec "mkdir -p $odoo_container_store_backup_folder"
     docker cp "$received_backup_file_path" $odoo_container_id:$odoo_container_store_backup_folder
-    docker_odoo_exec "cd $odoo_container_store_backup_folder && tar -xzf $received_backup_file_name"
+    docker_odoo_exec "cd $odoo_container_store_backup_folder && tar -xzf $received_backup_file_name && ls | grep -E '[0-9]{4}-[0-9]{2}-'|tr -d '\n'|xargs -0 -I {} mv {} $extracted_backup_folder_name"
 }
 
 config_psql_without_password() {
@@ -90,6 +97,7 @@ restore_filestore() {
 }
 
 restore_backup() {
+    copy_requirements_txt_file
     start_instance
     copy_backup
     config_psql_without_password
@@ -105,14 +113,23 @@ analyze_log_file() {
     # so no need to analyze log anymore
     [ -f ${LOG_FILE_OUTSIDE} ]
     if [ $? -ne 0 ]; then
+        show_test_success_message
         return 0
     fi
 
     grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
+        message=$(
+            cat <<EOF
+🐞The [PR \\#$PR_NUMBER]($PR_URL) was merged but the deployment to the server failed\\!🐞
+Please take a look at the attached log file🔬
+EOF
+        )
+        send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$message"
         exit 1
     fi
+    show_test_success_message
 }
 
 main() {

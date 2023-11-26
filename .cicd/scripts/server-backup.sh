@@ -13,11 +13,12 @@ main() {
 }
 
 populate_variables() {
-    declare -g docker_compose_path="$1"        # path to folder contains docker-compose.yml file - on host machine
-    declare -g db_name="$2"                    # supplied by jenkins pipeline - config manually in pipeline
-    declare -g odoo_image_tag="$3"             # odoo image tag - declared in docker compose file
-    declare -g config_file=/etc/odoo/odoo.conf # path inside the Odoo container
-    declare -g backup_folder=/tmp/backup       # path inside the Odoo container
+    declare -g docker_compose_path="$1"                            # path to folder contains docker-compose.yml file - on host machine
+    declare -g db_name="$2"                                        # supplied by jenkins pipeline - config manually in pipeline
+    declare -g odoo_image_tag="$3"                                 # odoo image tag - declared in docker compose file
+    declare -g config_file=/etc/odoo/odoo.conf                     # path inside the Odoo container
+    declare -g backup_folder=/tmp/odoo/backup                      # backup folder path of container and main host
+    declare -g latest_backup_file_path=$backup_folder/.odoo.tar.gz # contains path to current file
 
     declare -g db_host=$(get_config_value "db_host")
     declare -g db_host=${db_host:-'db'}
@@ -121,7 +122,7 @@ copy_backup_to_host() {
     [ ! -d "$backup_folder" ] && mkdir -p "$backup_folder"
     rm -rf ${backup_folder}/*
     docker cp $odoo_container_id:$backup_file_path $backup_folder
-    echo $backup_file_path
+    cp $backup_file_path $latest_backup_file_path
 }
 
 get_latest_backup_tar_file() {
