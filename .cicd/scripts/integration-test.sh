@@ -93,6 +93,8 @@ restore_backup() {
     start_instance
     copy_backup
     config_psql_without_password
+    #fixme:
+    ls -lah /tmp/odoo/restore/odoo
     create_empty_db
     restore_db
     restore_filestore
