@@ -16,6 +16,13 @@ populate_variables() {
     declare -g data_dir=${data_dir:-'/var/lib/odoo'}
 }
 
+function copy_requirements_txt_file {
+    if [[ -f "$SOURCE_REQUIREMENTS_FILE" ]]; then
+        echo "" >>$DOCKER_REQUIREMENTS_FILE
+        cat $SOURCE_REQUIREMENTS_FILE >>$DOCKER_REQUIREMENTS_FILE
+    fi
+}
+
 get_config_value() {
     param=$1
     grep -q -E "^\s*\b${param}\b\s*=" "$CONFIG_FILE"
@@ -90,6 +97,7 @@ restore_filestore() {
 }
 
 restore_backup() {
+    copy_requirements_txt_file
     start_instance
     copy_backup
     config_psql_without_password

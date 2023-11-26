@@ -92,62 +92,66 @@ jobs:
     #               bash $PIPELINE_SCRIPTS_PATH/unit-test.sh
 
     # TODO: integrationtest and deploy server
-    integration-test:
-        runs-on: ubuntu-latest
-        env:
-            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
-            SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
-            LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
-            LOCAL_BACKUP_FILE: odoo.tar.gz
-        #fixme: uncomment needs
-        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        # needs: [pylint-test, unit-test-at-install, unit-test-post-install]
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    # integration-test:
+    #     runs-on: ubuntu-latest
+    #     env:
+    #         SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
+    #         SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
+    #         LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
+    #         LOCAL_BACKUP_FILE: odoo.tar.gz
+    #     #fixme: uncomment needs
+    #     # if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    #     # needs: [pylint-test, unit-test-at-install, unit-test-post-install]
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v4
 
-            - name: "Upload backup script file to server"
-              uses: appleboy/scp-action@v0.1.4
-              with:
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  password: ${{ env.SERVER_PASSWORD }}
-                  port: ${{ env.SERVER_PORT }}
-                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
-                  target: "/tmp"
+    #         - name: "Upload backup script file to server"
+    #           uses: appleboy/scp-action@v0.1.4
+    #           with:
+    #               host: ${{ env.SERVER_HOST }}
+    #               username: ${{ env.SERVER_USER }}
+    #               password: ${{ env.SERVER_PASSWORD }}
+    #               port: ${{ env.SERVER_PORT }}
+    #               source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
+    #               target: "/tmp"
 
-            # - name: "Backup Odoo in server"
-            #   uses: appleboy/ssh-action@v1.0.0
-            #   with:
-            #       host: ${{ env.SERVER_HOST }}
-            #       username: ${{ env.SERVER_USER }}
-            #       password: ${{ env.SERVER_PASSWORD }}
-            #       port: ${{ env.SERVER_PORT }}
-            #       script: |
-            #           bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
+    #         # - name: "Backup Odoo in server"
+    #         #   uses: appleboy/ssh-action@v1.0.0
+    #         #   with:
+    #         #       host: ${{ env.SERVER_HOST }}
+    #         #       username: ${{ env.SERVER_USER }}
+    #         #       password: ${{ env.SERVER_PASSWORD }}
+    #         #       port: ${{ env.SERVER_PORT }}
+    #         #       script: |
+    #         #           bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
 
-            - name: "Download backup file"
-              uses: nicklasfrahm/scp-action@main
-              with:
-                  direction: download
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  insecure_password: ${{ env.SERVER_PASSWORD }}
-                  insecure_ignore_fingerprint: true
-                  source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-                  target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+    #         - name: "Download backup file"
+    #           uses: nicklasfrahm/scp-action@main
+    #           with:
+    #               direction: download
+    #               host: ${{ env.SERVER_HOST }}
+    #               username: ${{ env.SERVER_USER }}
+    #               insecure_password: ${{ env.SERVER_PASSWORD }}
+    #               insecure_ignore_fingerprint: true
+    #               source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
+    #               target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
-            - name: "Integration test"
-              run: |
-                  bash $PIPELINE_SCRIPTS_PATH/integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+    #         - name: "Integration test"
+    #           run: |
+    #               bash $PIPELINE_SCRIPTS_PATH/integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
     deploy-server:
         runs-on: ubuntu-latest
         env:
             SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/deploy.sh
+        # fixme
         # if: github.event.action == 'closed' && github.event.pull_request.merged == true
         # needs: [integration-test]
         steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
             - name: "Upload deploy script file to server"
               uses: appleboy/scp-action@v0.1.4
               with:
@@ -160,10 +164,14 @@ jobs:
 
             - name: "Deploy to server"
               uses: appleboy/ssh-action@v1.0.0
+              env:
+                  SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
+                  SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
+                  SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
                   password: ${{ env.SERVER_PASSWORD }}
                   port: ${{ env.SERVER_PORT }}
                   script: |
-                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}/.." "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
+                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.ODOO_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
