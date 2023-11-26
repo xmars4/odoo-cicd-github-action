@@ -111,10 +111,9 @@ restore_backup() {
 analyze_log_file() {
     # in case Odoo don't have any ERROR -> log file will be not generated
     # so no need to analyze log anymore
-    success_message="We pass all test cases, well done!"
     [ -f ${LOG_FILE_OUTSIDE} ]
     if [ $? -ne 0 ]; then
-        show_separator $success_message
+        show_test_success_message
         return 0
     fi
 
@@ -130,7 +129,7 @@ EOF
         send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$message"
         exit 1
     fi
-    show_separator $success_message
+    show_test_success_message
 }
 
 main() {

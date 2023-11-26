@@ -128,6 +128,11 @@ show_separator() {
     printf "%s\n" "${separator[@]}"
 }
 
+show_test_success_message() {
+    success_message="We passed all test cases, well done!"
+    show_separator "$success_message"
+}
+
 get_odoo_container_id() {
     cd "$ODOO_DOCKER_COMPOSE_PATH"
     docker_compose ps -q -a |

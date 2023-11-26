@@ -11,6 +11,7 @@ function analyze_log {
     # so no need to analyze log anymore
     [ -f ${LOG_FILE_OUTSIDE} ]
     if [ $? -ne 0 ]; then
+        show_test_success_message
         return 0
     fi
 
@@ -26,6 +27,7 @@ EOF
         send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$message"
         return 1
     fi
+    show_test_success_message
 }
 
 wait_until_odoo_shutdown
