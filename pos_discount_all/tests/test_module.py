@@ -12,7 +12,7 @@ from odoo.addons.point_of_sale.tests.test_frontend import TestPointOfSaleHttpCom
 class TestUi(TestPointOfSaleHttpCommon):
     def test_pos_discount_all(self):
 
-        pricelist = self.env["product.pricelist"].create(
+        pricelist = self.env["product.pricelist2"].create(
             {
                 "name": "Pricelist -10%",
             }
@@ -51,7 +51,7 @@ class TestUi(TestPointOfSaleHttpCommon):
                 "name": "Discount Product",
                 "is_discount": True,
                 "available_in_pos": True,
-                "list_price11": -1.0,
+                "list_price": -1.0,
                 "taxes_id": False,
             }
         )
