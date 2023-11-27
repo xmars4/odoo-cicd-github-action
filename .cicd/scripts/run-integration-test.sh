@@ -35,7 +35,7 @@ function update_config_file_after_restoration {
     --workers 0 \
     --database $ODOO_TEST_DATABASE_NAME \
     --logfile $LOG_FILE \
-    --log-level error \
+    --log-level info \
     --update $custom_addons \
     --init $install_addons \
     --test-tags ${tagged_custom_addons}\n" >>$CONFIG_FILE
@@ -91,6 +91,7 @@ main() {
     populate_variables $@
     restore_backup
     wait_until_odoo_shutdown
+    cat $CONFIG_FILE
 
     failed_message=$(
         cat <<EOF
