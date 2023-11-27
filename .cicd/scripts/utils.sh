@@ -149,7 +149,7 @@ function analyze_log_file {
     grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
-        send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$failed_message"
+        send_file_telegram_default "$LOG_FILE_OUTSIDE" "$failed_message"
         exit 1
     fi
     show_separator "$success_message"
