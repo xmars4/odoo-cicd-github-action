@@ -22,6 +22,7 @@ env:
 
     TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
     TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+    ODOO_ET_REPO_TOKEN: ${{ secrets.ODOO_ET_REPO_TOKEN }}
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_URL: ${{ github.event.pull_request.html_url }}
 
@@ -49,6 +50,7 @@ jobs:
               with:
                   repository: xmars4/odoo-enterprise
                   ref: 16.0
+                  token: ${{ env.ODOO_ET_REPO_TOKEN }}
                   path: ${{ github.workspace }}/.cicd/odoo/et-addons
                   fetch-depth: 1
             - name: Prepare data
