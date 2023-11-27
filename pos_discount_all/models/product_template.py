@@ -6,7 +6,7 @@ from odoo import fields, models
 
 
 class ProductTemplate(models.Model):
-    _inherit = "product.template"
+    _inherit = "product.template1"
 
     is_discount = fields.Boolean(
         string="Is a Discount",
@@ -17,5 +17,3 @@ class ProductTemplate(models.Model):
         " check this box for the product you configured"
         " as the 'Discount Product' on your PoS config.",
     )
-
-    available_in_pos = fields.Boolean(string='some other string brrrr')

@@ -45,7 +45,6 @@ env:
 
 jobs:
     # TODO: integrate with Sonarqube
-    # TODO: checkout with source enterprise to another folder
     # pylint-test:
     #     runs-on: ubuntu-latest
     #     steps:
@@ -194,9 +193,8 @@ jobs:
 
     deploy-server:
         runs-on: ubuntu-latest
-        #fixme
-        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        # needs: [integration-test]
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [integration-test]
         env:
             SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
         steps:
