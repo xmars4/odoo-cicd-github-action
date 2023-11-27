@@ -191,36 +191,36 @@ jobs:
               run: |
                   bash $PIPELINE_SCRIPTS_PATH/run-integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
-    # deploy-server:
-    #     runs-on: ubuntu-latest
-    #     if: github.event.action == 'closed' && github.event.pull_request.merged == true
-    #     env:
-    #         SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
-    #     needs: [integration-test]
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+    deploy-server:
+        runs-on: ubuntu-latest
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        env:
+            SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
+        needs: [integration-test]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    #         - name: "Upload deploy script file to server"
-    #           uses: appleboy/scp-action@v0.1.4
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-deploy.sh
-    #               target: "/tmp"
+            - name: "Upload deploy script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-deploy.sh
+                  target: "/tmp"
 
-    #         - name: "Deploy to server"
-    #           uses: appleboy/ssh-action@v1.0.0
-    #           env:
-    #               SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
-    #               SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
-    #               SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               script: |
-    #                   bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
+            - name: "Deploy to server"
+              uses: appleboy/ssh-action@v1.0.0
+              env:
+                  SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
+                  SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
+                  SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  script: |
+                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
