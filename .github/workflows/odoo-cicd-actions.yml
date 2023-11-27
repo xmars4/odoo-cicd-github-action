@@ -219,6 +219,7 @@ jobs:
                   SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
                   SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
                   SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
+                  GITHUB_STEP_SUMMARY: ${{ env.GITHUB_STEP_SUMMARY }}
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
@@ -226,3 +227,11 @@ jobs:
                   port: ${{ env.SERVER_PORT }}
                   script: |
                       bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
+            - name: The Deploy step has failed
+              if: ${{ failure() }}
+              run: |
+                  bash ${{env.PIPELINE_SCRIPTS_PATH}}/post-server-deploy.sh "failed"
+            - name: The Deploy step has successful
+              if: ${{ success() }}
+              run: |
+                  bash ${{env.PIPELINE_SCRIPTS_PATH}}/post-server-deploy.sh "success"

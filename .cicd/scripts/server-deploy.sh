@@ -119,6 +119,7 @@ set_list_addons() {
 update_config_file() {
     # replace old command argument
     sed -i "s/^\s*command\s*=.*//g" $server_config_file
+    sed '/^$/N;/^\n$/D' $server_config_file >temp && mv temp $server_config_file
     echo -e "\ncommand = -u ${CUSTOM_ADDONS} -i ${CUSTOM_ADDONS}" >>"${server_config_file}"
 }
 
