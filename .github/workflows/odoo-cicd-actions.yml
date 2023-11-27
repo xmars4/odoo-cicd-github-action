@@ -22,7 +22,12 @@ env:
 
     TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
     TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+
     ODOO_ET_REPO_TOKEN: ${{ secrets.ODOO_ET_REPO_TOKEN }}
+    ET_REPO_PATH: xmars4/odoo-enterprise
+    ET_REPO_REF: "16.0"
+    ET_WORKSPACE_PATH: ${{ github.workspace }}/.cicd/odoo/et-addons
+
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_URL: ${{ github.event.pull_request.html_url }}
 
@@ -48,10 +53,10 @@ jobs:
             - name: Checkout Enterprise source
               uses: actions/checkout@v4
               with:
-                  repository: xmars4/odoo-enterprise
-                  ref: "16.0"
+                  repository: ${{ env.ET_REPO_PATH }}
+                  ref: ${{ env.ET_REPO_REF }}
                   token: ${{ env.ODOO_ET_REPO_TOKEN }}
-                  path: ${{ github.workspace }}/.cicd/odoo/et-addons
+                  path: ${{ env.ET_WORKSPACE_PATH }}
                   fetch-depth: 1
             - name: Prepare data
               run: |
@@ -73,10 +78,10 @@ jobs:
             - name: Checkout Enterprise source
               uses: actions/checkout@v4
               with:
-                  repository: xmars4/odoo-enterprise
-                  ref: "16.0"
+                  repository: ${{ env.ET_REPO_PATH }}
+                  ref: ${{ env.ET_REPO_REF }}
                   token: ${{ env.ODOO_ET_REPO_TOKEN }}
-                  path: ${{ github.workspace }}/.cicd/odoo/et-addons
+                  path: ${{ env.ET_WORKSPACE_PATH }}
                   fetch-depth: 1
             - name: Prepare data
               run: |
@@ -98,10 +103,10 @@ jobs:
             - name: Checkout Enterprise source
               uses: actions/checkout@v4
               with:
-                  repository: xmars4/odoo-enterprise
-                  ref: "16.0"
+                  repository: ${{ env.ET_REPO_PATH }}
+                  ref: ${{ env.ET_REPO_REF }}
                   token: ${{ env.ODOO_ET_REPO_TOKEN }}
-                  path: ${{ github.workspace }}/.cicd/odoo/et-addons
+                  path: ${{ env.ET_WORKSPACE_PATH }}
                   fetch-depth: 1
             - name: Prepare data
               run: |
@@ -116,63 +121,70 @@ jobs:
                   echo $ODOO_ET_REPO_TOKEN
                   bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "Post Install"
 
-    # integration-test:
-    #     runs-on: ubuntu-latest
-    #     if: github.event.action == 'closed' && github.event.pull_request.merged == true
-    #     needs: [pylint-test, unit-test-at-install, unit-test-post-install]
-    #     env:
-    #         SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
-    #         SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
-    #         LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
-    #         LOCAL_BACKUP_FILE: odoo.tar.gz
+    integration-test:
+        runs-on: ubuntu-latest
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [pylint-test, unit-test-at-install, unit-test-post-install]
+        env:
+            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
+            SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
+            LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
+            LOCAL_BACKUP_FILE: odoo.tar.gz
 
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Checkout Enterprise source
+              uses: actions/checkout@v4
+              with:
+                  repository: ${{ env.ET_REPO_PATH }}
+                  ref: ${{ env.ET_REPO_REF }}
+                  token: ${{ env.ODOO_ET_REPO_TOKEN }}
+                  path: ${{ env.ET_WORKSPACE_PATH }}
+                  fetch-depth: 1
+            - name: "Upload backup script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
+                  target: "/tmp"
 
-    #         - name: "Upload backup script file to server"
-    #           uses: appleboy/scp-action@v0.1.4
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
-    #               target: "/tmp"
+            - name: "Backup Odoo on server"
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  script: |
+                      bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
 
-    #         - name: "Backup Odoo on server"
-    #           uses: appleboy/ssh-action@v1.0.0
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               script: |
-    #                   bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
+            - name: "Download backup file"
+              uses: nicklasfrahm/scp-action@main
+              with:
+                  direction: download
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  insecure_password: ${{ env.SERVER_PASSWORD }}
+                  insecure_ignore_fingerprint: true
+                  source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
+                  target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
-    #         - name: "Download backup file"
-    #           uses: nicklasfrahm/scp-action@main
-    #           with:
-    #               direction: download
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               insecure_password: ${{ env.SERVER_PASSWORD }}
-    #               insecure_ignore_fingerprint: true
-    #               source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-    #               target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+            - name: "Prepare data before running test"
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/build-integration.sh
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+                  up-flags: "--build --quiet-pull"
+                  down-flags: "--volumes"
 
-    #         - name: "Prepare data before running test"
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/build-integration.sh
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    #               up-flags: "--build --quiet-pull"
-    #               down-flags: "--volumes"
-
-    #         - name: "Integration test"
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+            - name: "Integration test"
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
     # deploy-server:
     #     runs-on: ubuntu-latest
