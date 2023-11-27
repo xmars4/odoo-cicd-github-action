@@ -5,24 +5,24 @@ global_telegram_bot_token=${telegram_bot_token}
 global_telegram_channel_id=${telegram_channel_id}
 config_path=${CICD_ODOO_OPTIONS}
 
-get_cicd_config_for_odoo_addon() {
+function get_cicd_config_for_odoo_addon {
     addon_name=$1
     option=$2
     echo $(jq ".addons.${addon_name}.${option}" $config_path)
 }
 
-docker_compose() {
+function docker_compose {
     cd $ODOO_DOCKER_COMPOSE_PATH
     docker compose "$@"
 }
 
-docker_compose_clean() {
+function docker_compose_clean {
     cd $ODOO_DOCKER_COMPOSE_PATH
     docker_compose down -v
     rm -f $LOG_FILE_OUTSIDE
 }
 
-get_config_value() {
+function get_config_value {
     param=$1
     grep -q -E "^\s*\b${param}\b\s*=" "$CONFIG_FILE"
     if [[ $? == 0 ]]; then
@@ -47,7 +47,7 @@ function get_list_addons {
     echo $addons
 }
 
-get_list_addons_filtered_by_config_option() {
+function get_list_addons_filtered_by_config_option {
     addons_path=$1
     option_name=$2
     option_value=$3
@@ -122,30 +122,25 @@ function wait_until_odoo_shutdown {
 }
 
 # declare all useful functions here
-show_separator() {
+function show_separator {
     x="==============================================="
     separator=($x $x "$1" $x $x)
     printf "%s\n" "${separator[@]}"
 }
 
-show_test_success_message() {
-    success_message="We passed all test cases, well done!"
-    show_separator "$success_message"
-}
-
-get_odoo_container_id() {
+function get_odoo_container_id {
     cd "$ODOO_DOCKER_COMPOSE_PATH"
     docker_compose ps -q -a |
         xargs docker inspect --format '{{.Id}} {{.Config.Image}}' |
         awk -v img="${ODOO_IMAGE_TAG}" '$2 == img {print $1}'
 }
 
-docker_odoo_exec() {
+function docker_odoo_exec {
     odoo_container_id=$(get_odoo_container_id)
     docker exec $odoo_container_id sh -c "$@"
 }
 
-check_variable_missing_value() {
+function check_variable_missing_value {
     variable_name=$1
     # ! is used to get variable value instead of its name
     if [ -z ${!variable_name} ]; then
@@ -154,11 +149,11 @@ check_variable_missing_value() {
     fi
 }
 
-get_repo_url() {
+function get_repo_url {
     echo $(git config --get remote.origin.url)
 }
 
-get_repo_name() {
+function get_repo_name {
     repo_url=$1
     if ! [[ "$repo_url" =~ ^git@ ]]; then
         repo_name=$(echo "$repo_url" | sed "s/.*:\/\/[^/]*\///" | sed "s/\.git$//")
@@ -168,11 +163,11 @@ get_repo_name() {
     echo $repo_name
 }
 
-get_commit_sha() {
+function get_commit_sha {
     echo $(git rev-parse HEAD)
 }
 
-set_github_commit_status() {
+function set_github_commit_status {
     repo_name=$1
     commit_sha=$2
     github_access_token=$3
@@ -204,7 +199,7 @@ set_github_commit_status() {
     fi
 }
 
-set_github_commit_status_default() {
+function set_github_commit_status_default {
     repo_url=$(get_repo_url)
     repo_name=$(get_repo_name "$repo_url")
     commit_sha=$(get_commit_sha)
@@ -215,8 +210,35 @@ set_github_commit_status_default() {
     set_github_commit_status "$repo_name" "$commit_sha" "$github_access_token" "$state" "$message" "$BUILD_URL" "$context"
 }
 
+function copy_requirements_txt_file {
+    if [[ -f "$SOURCE_REQUIREMENTS_FILE" ]]; then
+        echo "" >>$DOCKER_REQUIREMENTS_FILE
+        cat $SOURCE_REQUIREMENTS_FILE >>$DOCKER_REQUIREMENTS_FILE
+    fi
+}
+
+function analyze_log_file {
+    failed_message=$1
+    success_message=$2
+    [ -z $success_message ] && success_message="We passed all test cases, well done!"
+
+    [ -f ${LOG_FILE_OUTSIDE} ]
+    if [ $? -ne 0 ]; then
+        show_separator "$success_message"
+        return 0
+    fi
+
+    grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
+    error_exist=$?
+    if [ $error_exist -eq 0 ]; then
+        send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$failed_message"
+        exit 1
+    fi
+    show_separator "$success_message"
+}
+
 # ------------------ Telegram functions -------------------------
-send_file_telegram() {
+function send_file_telegram {
     bot_token=$1
     chat_id=$2
     file_path=$3
@@ -237,7 +259,7 @@ send_file_telegram() {
     fi
 }
 
-send_message_telegram() {
+function send_message_telegram {
     bot_token=$1
     chat_id=$2
     message=$3
@@ -256,13 +278,13 @@ send_message_telegram() {
     fi
 }
 
-send_file_telegram_default() {
+function send_file_telegram_default {
     file_path=$1
     caption=$2
     send_file_telegram "$global_telegram_bot_token" "$global_telegram_channel_id" "$file_path" "$caption"
 }
 
-send_message_telegram_default() {
+function send_message_telegram_default {
     message=$1
     send_message_telegram "$global_telegram_bot_token" "$global_telegram_channel_id" "$message"
 }

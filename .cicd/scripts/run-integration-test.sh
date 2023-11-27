@@ -16,13 +16,6 @@ populate_variables() {
     declare -g data_dir=${data_dir:-'/var/lib/odoo'}
 }
 
-function copy_requirements_txt_file {
-    if [[ -f "$SOURCE_REQUIREMENTS_FILE" ]]; then
-        echo "" >>$DOCKER_REQUIREMENTS_FILE
-        cat $SOURCE_REQUIREMENTS_FILE >>$DOCKER_REQUIREMENTS_FILE
-    fi
-}
-
 get_config_value() {
     param=$1
     grep -q -E "^\s*\b${param}\b\s*=" "$CONFIG_FILE"
@@ -30,11 +23,6 @@ get_config_value() {
         value=$(grep -E "^\s*\b${param}\b\s*=" "$CONFIG_FILE" | cut -d " " -f3 | sed 's/["\n\r]//g')
     fi
     echo "$value"
-}
-
-function update_config_file_before_restoration {
-    sed -i "s/^\s*command\s*.*//g" $CONFIG_FILE
-    sed -i "s/^\s*db_name\s*.*//g" $CONFIG_FILE
 }
 
 function update_config_file_after_restoration {
@@ -68,12 +56,6 @@ config_psql_without_password() {
     docker_odoo_exec "echo $db_host:$db_port:\"$ODOO_TEST_DATABASE_NAME\":$db_user:$db_password >> $pgpass_path"
 }
 
-start_instance() {
-    update_config_file_before_restoration
-    docker_compose_clean # remove old test instance
-    docker_compose up -d
-}
-
 restart_instance() {
     update_config_file_after_restoration
     docker_compose restart
@@ -97,45 +79,26 @@ restore_filestore() {
 }
 
 restore_backup() {
-    copy_requirements_txt_file
-    start_instance
     copy_backup
     config_psql_without_password
     create_empty_db
     restore_db
     restore_filestore
     restart_instance
-    wait_until_odoo_shutdown
-}
-
-analyze_log_file() {
-    # in case Odoo don't have any ERROR -> log file will be not generated
-    # so no need to analyze log anymore
-    [ -f ${LOG_FILE_OUTSIDE} ]
-    if [ $? -ne 0 ]; then
-        show_test_success_message
-        return 0
-    fi
-
-    grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
-    error_exist=$?
-    if [ $error_exist -eq 0 ]; then
-        message=$(
-            cat <<EOF
-🐞The [PR \\#$PR_NUMBER]($PR_URL) was merged but the deployment to the server failed\\!🐞
-Please take a look at the attached log file🔬
-EOF
-        )
-        send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$message"
-        exit 1
-    fi
-    show_test_success_message
 }
 
 main() {
     populate_variables $@
     restore_backup
-    analyze_log_file
+    wait_until_odoo_shutdown
+
+    failed_message=$(
+        cat <<EOF
+🐞The [PR \\#$PR_NUMBER]($PR_URL) was merged but the deployment to the server failed\\!🐞
+Please take a look at the attached log file🔬
+EOF
+    )
+    analyze_log_file "$failed_message"
 }
 
-main $@
+main "$@"
