@@ -10,6 +10,7 @@
     "category": "Point of Sale",
     "author": "GRAP,Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/pos",
+    "mainterrrrr":"haha",
     "license": "AGPL-3",
     "depends": ["point_of_sale"],
     "data": [

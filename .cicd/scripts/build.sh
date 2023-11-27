@@ -68,7 +68,6 @@ function update_config_file {
             --without-demo $without_demo_addons \
             --test-tags $test_tags\n" >>$CONFIG_FILE
         fi
-
     fi
 }
 
