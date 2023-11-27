@@ -54,7 +54,6 @@ function main {
     populate_variables "$@"
     set_list_addons
     update_config_file
-    copy_requirements_txt_file
 }
 
 main "$@"

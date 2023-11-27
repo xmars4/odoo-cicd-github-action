@@ -10,7 +10,6 @@ ssh_folder="$HOME/.ssh"
 original_repo_remote_name="origin"
 custom_repo_remote_name="origin-ssh"
 custom_repo_host="ssh.github.com"
-server_config_file_backup="${server_config_file}.bak"
 CUSTOM_ADDONS=
 
 function get_list_addons {
@@ -109,6 +108,7 @@ pull_latest_code() {
 }
 
 set_list_addons() {
+    declare -g CUSTOM_ADDONS
     CUSTOM_ADDONS=$(get_list_addons "$server_custom_addons_path")
     if [ -z $CUSTOM_ADDONS ]; then
         echo "Can't find any Odoo custom addons !"
@@ -117,19 +117,15 @@ set_list_addons() {
 }
 
 update_config_file() {
-    cp $server_config_file $server_config_file_backup
     # replace old command argument
     sed -i "s/^\s*command\s*=.*//g" $server_config_file
-    echo -e "\ncommand = -u ${CUSTOM_ADDONS}" >>"${server_config_file}"
-}
-
-reset_config_file() {
-    mv $server_config_file_backup $server_config_file
+    sed '/^$/N;/^\n$/D' $server_config_file >temp && mv temp $server_config_file
+    echo -e "\ncommand = -u ${CUSTOM_ADDONS} -i ${CUSTOM_ADDONS}" >>"${server_config_file}"
 }
 
 update_odoo_services() {
     cd "${server_docker_compose_path}"
-    docker compose restart
+    docker compose up -d --build
 }
 
 function get_odoo_login_url() {
@@ -153,13 +149,11 @@ function wait_until_odoo_available {
     while (($count <= $maximum_count)); do
         http_status=$(echo "foo|bar" | { wget --connect-timeout=5 --server-response --spider --quiet "${server_odoo_login_url}" 2>&1 | awk 'NR==1{print $2}' || true; })
         if [[ $http_status = '200' ]]; then
-            reset_config_file
             exit 0 # Odoo service is fully up and running
         fi
         ((count++))
         sleep 5
     done
-    reset_config_file
     exit 1 # Odoo service is not running
 }
 

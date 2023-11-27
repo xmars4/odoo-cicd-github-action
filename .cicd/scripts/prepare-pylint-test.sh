@@ -20,7 +20,6 @@ function update_config_file {
 
 function main {
     update_config_file
-    copy_requirements_txt_file
 }
 
 main "$@"

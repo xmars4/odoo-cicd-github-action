@@ -31,12 +31,20 @@ check_config "db_password" "$PASSWORD"
 # get 'command' from config file
 COMMAND_PARAM_NAME="command"
 COMMAND=
-function get_additional_command() {
+function get_additional_command {
     if grep -q -E "^\s*\b${COMMAND_PARAM_NAME}\b\s*=" "$ODOO_RC"; then
         COMMAND=$(grep -E "^\s*\b${COMMAND_PARAM_NAME}\b\s*=" "$ODOO_RC" | cut -d "=" -f2 | sed 's/[\n\r]//g')
     fi
 }
 get_additional_command
+
+function install_extra_requirements {
+    extra_requirements=/mnt/custom-addons/requirements.txt
+    if [[ -f $extra_requirements ]]; then
+        pip3 install -r $extra_requirements
+    fi
+}
+install_extra_requirements
 
 case "$1" in
 -- | odoo)
