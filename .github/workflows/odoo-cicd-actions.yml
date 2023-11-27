@@ -23,9 +23,9 @@ env:
     TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
     TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
 
-    ODOO_ET_REPO_TOKEN: ${{ secrets.ODOO_ET_REPO_TOKEN }}
-    ET_REPO_PATH: xmars4/odoo-enterprise
-    ET_REPO_REF: "16.0"
+    ET_REPO_TOKEN: ${{ secrets.ET_REPO_TOKEN }}
+    ET_REPO_PATH: ${{ vars.ET_REPO_PATH }}
+    ET_REPO_REF: ${{ vars.ET_REPO_REF }}
     ET_WORKSPACE_PATH: ${{ github.workspace }}/.cicd/odoo/et-addons
 
     PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -55,7 +55,7 @@ jobs:
               with:
                   repository: ${{ env.ET_REPO_PATH }}
                   ref: ${{ env.ET_REPO_REF }}
-                  token: ${{ env.ODOO_ET_REPO_TOKEN }}
+                  token: ${{ env.ET_REPO_TOKEN }}
                   path: ${{ env.ET_WORKSPACE_PATH }}
                   fetch-depth: 1
             - name: Prepare data
@@ -80,7 +80,7 @@ jobs:
               with:
                   repository: ${{ env.ET_REPO_PATH }}
                   ref: ${{ env.ET_REPO_REF }}
-                  token: ${{ env.ODOO_ET_REPO_TOKEN }}
+                  token: ${{ env.ET_REPO_TOKEN }}
                   path: ${{ env.ET_WORKSPACE_PATH }}
                   fetch-depth: 1
             - name: Prepare data
@@ -105,7 +105,7 @@ jobs:
               with:
                   repository: ${{ env.ET_REPO_PATH }}
                   ref: ${{ env.ET_REPO_REF }}
-                  token: ${{ env.ODOO_ET_REPO_TOKEN }}
+                  token: ${{ env.ET_REPO_TOKEN }}
                   path: ${{ env.ET_WORKSPACE_PATH }}
                   fetch-depth: 1
             - name: Prepare data
@@ -118,13 +118,13 @@ jobs:
                   down-flags: "--volumes"
             - name: Run Unit test cases
               run: |
-                  echo $ODOO_ET_REPO_TOKEN
+                  echo $ET_REPO_TOKEN
                   bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "Post Install"
 
     integration-test:
         runs-on: ubuntu-latest
-        if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        needs: [pylint-test, unit-test-at-install, unit-test-post-install]
+        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        # needs: [pylint-test, unit-test-at-install, unit-test-post-install]
         env:
             SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
@@ -139,7 +139,7 @@ jobs:
               with:
                   repository: ${{ env.ET_REPO_PATH }}
                   ref: ${{ env.ET_REPO_REF }}
-                  token: ${{ env.ODOO_ET_REPO_TOKEN }}
+                  token: ${{ env.ET_REPO_TOKEN }}
                   path: ${{ env.ET_WORKSPACE_PATH }}
                   fetch-depth: 1
             - name: "Upload backup script file to server"
