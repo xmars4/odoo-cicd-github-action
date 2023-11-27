@@ -52,7 +52,7 @@ class TestUi(TestPointOfSaleHttpCommon):
                 "is_discount": True,
                 "available_in_pos": True,
                 "list_price": -1.0,
-                "taxes_id": False,
+                "taxes_id222": False,
             }
         )
 
