@@ -218,31 +218,23 @@ function copy_requirements_txt_file {
 }
 
 function analyze_log_file {
-    # in case Odoo don't have any ERROR -> log file will be not generated
-    # so no need to analyze log anymore
     failed_message=$1
     success_message=$2
-    [ -z $success_message ] && success_message=""
+    [ -z $success_message ] && success_message="We passed all test cases, well done!"
 
     [ -f ${LOG_FILE_OUTSIDE} ]
     if [ $? -ne 0 ]; then
-        show_test_success_message
+        show_separator "$success_message"
         return 0
     fi
 
     grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
-        message=$(
-            cat <<EOF
-🐞The [PR \\#$PR_NUMBER]($PR_URL) was merged but the deployment to the server failed\\!🐞
-Please take a look at the attached log file🔬
-EOF
-        )
-        send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$message"
+        send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$LOG_FILE_OUTSIDE" "$failed_message"
         exit 1
     fi
-    show_test_success_message
+    show_separator "$success_message"
 }
 
 # ------------------ Telegram functions -------------------------

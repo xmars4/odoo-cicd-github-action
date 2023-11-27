@@ -55,40 +55,39 @@ jobs:
               run: |
                   bash $PIPELINE_SCRIPTS_PATH/run-pylint-test.sh
 
-    # unit-test-at-install:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
-    #         - name: Prepare data for containers
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/build.sh "unit_test" "at_install"
-    #               cat $CONFIG_FILE
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    #               up-flags: "--build --quiet-pull"
-    #               down-flags: "--volumes"
-    #         - name: Run Unit test cases
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/unit-test.sh
+    unit-test-at-install:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Prepare data
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+                  up-flags: "--build --quiet-pull"
+                  down-flags: "--volumes"
+            - name: Run Unit test cases
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "At Install"
 
-    # unit-test-post-install:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
-    #         - name: Prepare data for containers
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/build.sh "unit_test" "post_install"
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    #               up-flags: "--build --quiet-pull"
-    #               down-flags: "--volumes"
-    #         - name: Run Unit test cases
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/unit-test.sh
+    unit-test-post-install:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Prepare data
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+                  up-flags: "--build --quiet-pull"
+                  down-flags: "--volumes"
+            - name: Run Unit test cases
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "Post Install"
 
     # integration-test:
     #     runs-on: ubuntu-latest
