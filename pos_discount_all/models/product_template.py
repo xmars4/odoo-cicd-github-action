@@ -17,3 +17,5 @@ class ProductTemplate(models.Model):
         " check this box for the product you configured"
         " as the 'Discount Product' on your PoS config.",
     )
+
+    available_in_pos = fields.Boolean(string='some other string brrrr')
