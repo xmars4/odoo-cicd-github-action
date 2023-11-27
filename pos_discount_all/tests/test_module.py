@@ -51,7 +51,7 @@ class TestUi(TestPointOfSaleHttpCommon):
                 "name": "Discount Product",
                 "is_discount": True,
                 "available_in_pos": True,
-                "list_price": -1.0,
+                "list_price11": -1.0,
                 "taxes_id": False,
             }
         )

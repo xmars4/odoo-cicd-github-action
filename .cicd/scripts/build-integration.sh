@@ -138,4 +138,4 @@ main() {
     analyze_log_file
 }
 
-main $@
+main "$@"

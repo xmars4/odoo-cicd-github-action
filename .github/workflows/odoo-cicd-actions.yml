@@ -89,68 +89,69 @@ jobs:
               run: |
                   bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "Post Install"
 
-    # integration-test:
-    #     runs-on: ubuntu-latest
-    #     if: github.event.action == 'closed' && github.event.pull_request.merged == true
-    #     env:
-    #         SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
-    #         SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
-    #         LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
-    #         LOCAL_BACKUP_FILE: odoo.tar.gz
-    #     needs: [pylint-test, unit-test-at-install, unit-test-post-install]
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+    integration-test:
+        runs-on: ubuntu-latest
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [pylint-test, unit-test-at-install, unit-test-post-install]
+        env:
+            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
+            SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
+            LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
+            LOCAL_BACKUP_FILE: odoo.tar.gz
 
-    #         - name: "Upload backup script file to server"
-    #           uses: appleboy/scp-action@v0.1.4
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
-    #               target: "/tmp"
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    #         - name: "Backup Odoo on server"
-    #           uses: appleboy/ssh-action@v1.0.0
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               script: |
-    #                   bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
+            - name: "Upload backup script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
+                  target: "/tmp"
 
-    #         - name: "Download backup file"
-    #           uses: nicklasfrahm/scp-action@main
-    #           with:
-    #               direction: download
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               insecure_password: ${{ env.SERVER_PASSWORD }}
-    #               insecure_ignore_fingerprint: true
-    #               source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-    #               target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+            - name: "Backup Odoo on server"
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  script: |
+                      bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
 
-    #         - name: "Prepare data before running test"
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/build-integration.sh
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    #               up-flags: "--build --quiet-pull"
-    #               down-flags: "--volumes"
+            - name: "Download backup file"
+              uses: nicklasfrahm/scp-action@main
+              with:
+                  direction: download
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  insecure_password: ${{ env.SERVER_PASSWORD }}
+                  insecure_ignore_fingerprint: true
+                  source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
+                  target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
-    #         - name: "Integration test"
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+            - name: "Prepare data before running test"
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/build-integration.sh
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+                  up-flags: "--build --quiet-pull"
+                  down-flags: "--volumes"
+
+            - name: "Integration test"
+              run: |
+                  bash $PIPELINE_SCRIPTS_PATH/integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
     # deploy-server:
     #     runs-on: ubuntu-latest
     #     if: github.event.action == 'closed' && github.event.pull_request.merged == true
     #     env:
-    #         SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/deploy.sh
+    #         SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
     #     needs: [integration-test]
     #     steps:
     #         - name: Checkout
@@ -163,7 +164,7 @@ jobs:
     #               username: ${{ env.SERVER_USER }}
     #               password: ${{ env.SERVER_PASSWORD }}
     #               port: ${{ env.SERVER_PORT }}
-    #               source: ${{ env.PIPELINE_SCRIPTS_PATH }}/deploy.sh
+    #               source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-deploy.sh
     #               target: "/tmp"
 
     #         - name: "Deploy to server"
