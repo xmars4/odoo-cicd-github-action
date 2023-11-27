@@ -44,6 +44,13 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+            - name: Checkout Enterprise source
+              uses: actions/checkout@v4
+              with:
+                  repository: xmars4/odoo-enterprise
+                  ref: 16.0
+                  path: ${{ github.workspace }}/.cicd/odoo/et-addons
+                  fetch-depth: 1
             - name: Prepare data
               run: |
                   bash $PIPELINE_SCRIPTS_PATH/prepare-pylint-test.sh
