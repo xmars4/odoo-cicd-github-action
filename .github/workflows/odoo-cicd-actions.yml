@@ -38,6 +38,7 @@ env:
 
 jobs:
     # TODO: integrate with Sonarqube
+    # TODO: checkout with source enterprise to another folder
     pylint-test:
         runs-on: ubuntu-latest
         steps:
