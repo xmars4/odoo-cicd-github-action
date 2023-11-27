@@ -210,13 +210,6 @@ function set_github_commit_status_default {
     set_github_commit_status "$repo_name" "$commit_sha" "$github_access_token" "$state" "$message" "$BUILD_URL" "$context"
 }
 
-function copy_requirements_txt_file {
-    if [[ -f "$SOURCE_REQUIREMENTS_FILE" ]]; then
-        echo "" >>$DOCKER_REQUIREMENTS_FILE
-        cat $SOURCE_REQUIREMENTS_FILE >>$DOCKER_REQUIREMENTS_FILE
-    fi
-}
-
 function analyze_log_file {
     failed_message=$1
     success_message=$2
