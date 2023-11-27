@@ -6,7 +6,7 @@ from odoo import models
 
 
 class PosSession(models.Model):
-    _inherit = "pos.session"
+    _inherit = "pos.session1"
 
     def _loader_params_product_product(self):
         res = super()._loader_params_product_product()
