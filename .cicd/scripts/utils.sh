@@ -1,14 +1,9 @@
 #!/bin/bash
 
-global_github_access_token=${github_access_token}
-global_telegram_bot_token=${telegram_bot_token}
-global_telegram_channel_id=${telegram_channel_id}
-config_path=${CICD_ODOO_OPTIONS}
-
 function get_cicd_config_for_odoo_addon {
     addon_name=$1
     option=$2
-    echo $(jq ".addons.${addon_name}.${option}" $config_path)
+    echo $(jq ".addons.${addon_name}.${option}" $CICD_ODOO_OPTIONS)
 }
 
 function docker_compose {
@@ -140,76 +135,6 @@ function docker_odoo_exec {
     docker exec $odoo_container_id sh -c "$@"
 }
 
-function check_variable_missing_value {
-    variable_name=$1
-    # ! is used to get variable value instead of its name
-    if [ -z ${!variable_name} ]; then
-        show_separator "ERROR: Mising variable named '$variable_name' or its value is empty"
-        exit 1
-    fi
-}
-
-function get_repo_url {
-    echo $(git config --get remote.origin.url)
-}
-
-function get_repo_name {
-    repo_url=$1
-    if ! [[ "$repo_url" =~ ^git@ ]]; then
-        repo_name=$(echo "$repo_url" | sed "s/.*:\/\/[^/]*\///" | sed "s/\.git$//")
-    else
-        repo_name=$(echo "$repo_url" | sed "s/.*://" | sed "s/\.git$//")
-    fi
-    echo $repo_name
-}
-
-function get_commit_sha {
-    echo $(git rev-parse HEAD)
-}
-
-function set_github_commit_status {
-    repo_name=$1
-    commit_sha=$2
-    github_access_token=$3
-    state=$4
-    message=$5
-    build_url=$6
-    context=$7
-
-    if [ -z $context ]; then
-        context="cicd/jenkins"
-    fi
-    if [ -z $build_url ]; then
-        build_url=$BUILD_URL
-    fi
-
-    request_content="{\"state\":\"${state}\",\"target_url\":\"${build_url}\",\"description\":\"${message}\",\"context\":\"${context}\"}"
-
-    response=$(curl --write-out '%{http_code}\n' -L -s \
-        -X POST \
-        -H "Accept: application/vnd.github+json" \
-        -H "Authorization: Bearer ${github_access_token}" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
-        https://api.github.com/repos/${repo_name}/statuses/${commit_sha} \
-        -d "$request_content")
-    status_code=$(echo $response | grep -oE "[0-9]+$")
-    if [[ $status_code != "201" ]]; then
-        echo "Can't set Github commit status!"
-        echo $response
-    fi
-}
-
-function set_github_commit_status_default {
-    repo_url=$(get_repo_url)
-    repo_name=$(get_repo_name "$repo_url")
-    commit_sha=$(get_commit_sha)
-    github_access_token=${global_github_access_token}
-    state=$1
-    message=$2
-    context=$3
-    set_github_commit_status "$repo_name" "$commit_sha" "$github_access_token" "$state" "$message" "$BUILD_URL" "$context"
-}
-
 function analyze_log_file {
     failed_message=$1
     success_message=$2
@@ -274,12 +199,12 @@ function send_message_telegram {
 function send_file_telegram_default {
     file_path=$1
     caption=$2
-    send_file_telegram "$global_telegram_bot_token" "$global_telegram_channel_id" "$file_path" "$caption"
+    send_file_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$file_path" "$caption"
 }
 
 function send_message_telegram_default {
     message=$1
-    send_message_telegram "$global_telegram_bot_token" "$global_telegram_channel_id" "$message"
+    send_message_telegram "$TELEGRAM_TOKEN" "$TELEGRAM_CHANNEL_ID" "$message"
 }
 # ------------------ Telegram functions -------------------------
 
