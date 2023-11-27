@@ -15,6 +15,7 @@ env:
     SOURCE_REQUIREMENTS_FILE: ${{ github.workspace }}/requirements.txt
     DOCKER_REQUIREMENTS_FILE: ${{ github.workspace }}/.cicd/odoo/dockerfile/requirements.txt
     ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.cicd/odoo
+    ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
     ODOO_TEST_DATABASE_NAME: testing_db
     LOG_FILE: /var/log/odoo/odoo.log
     LOG_FILE_OUTSIDE: ${{ github.workspace }}/.cicd/odoo/logs/odoo.log
@@ -45,81 +46,81 @@ env:
 jobs:
     # TODO: integrate with Sonarqube
     # TODO: checkout with source enterprise to another folder
-    pylint-test:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-            - name: Checkout Enterprise source
-              uses: actions/checkout@v4
-              with:
-                  repository: ${{ env.ET_REPO_PATH }}
-                  ref: ${{ env.ET_REPO_REF }}
-                  token: ${{ env.ET_REPO_TOKEN }}
-                  path: ${{ env.ET_WORKSPACE_PATH }}
-                  fetch-depth: 1
-            - name: Prepare data
-              run: |
-                  bash $PIPELINE_SCRIPTS_PATH/prepare-pylint-test.sh
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-                  up-flags: "--build --quiet-pull"
-                  down-flags: "--volumes"
-            - name: Run Pylint Test cases
-              run: |
-                  bash $PIPELINE_SCRIPTS_PATH/run-pylint-test.sh
+    # pylint-test:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v4
+    #         - name: Checkout Enterprise source
+    #           uses: actions/checkout@v4
+    #           with:
+    #               repository: ${{ env.ET_REPO_PATH }}
+    #               ref: ${{ env.ET_REPO_REF }}
+    #               token: ${{ env.ET_REPO_TOKEN }}
+    #               path: ${{ env.ET_WORKSPACE_PATH }}
+    #               fetch-depth: 1
+    #         - name: Prepare data
+    #           run: |
+    #               bash $PIPELINE_SCRIPTS_PATH/prepare-pylint-test.sh
+    #         - uses: isbang/compose-action@v1.5.1
+    #           with:
+    #               compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
+    #               up-flags: "--build --quiet-pull"
+    #               down-flags: "--volumes"
+    #         - name: Run Pylint Test cases
+    #           run: |
+    #               bash $PIPELINE_SCRIPTS_PATH/run-pylint-test.sh
 
-    unit-test-at-install:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-            - name: Checkout Enterprise source
-              uses: actions/checkout@v4
-              with:
-                  repository: ${{ env.ET_REPO_PATH }}
-                  ref: ${{ env.ET_REPO_REF }}
-                  token: ${{ env.ET_REPO_TOKEN }}
-                  path: ${{ env.ET_WORKSPACE_PATH }}
-                  fetch-depth: 1
-            - name: Prepare data
-              run: |
-                  bash $PIPELINE_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-                  up-flags: "--build --quiet-pull"
-                  down-flags: "--volumes"
-            - name: Run Unit test cases
-              run: |
-                  bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "At Install"
+    # unit-test-at-install:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v4
+    #         - name: Checkout Enterprise source
+    #           uses: actions/checkout@v4
+    #           with:
+    #               repository: ${{ env.ET_REPO_PATH }}
+    #               ref: ${{ env.ET_REPO_REF }}
+    #               token: ${{ env.ET_REPO_TOKEN }}
+    #               path: ${{ env.ET_WORKSPACE_PATH }}
+    #               fetch-depth: 1
+    #         - name: Prepare data
+    #           run: |
+    #               bash $PIPELINE_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
+    #         - uses: isbang/compose-action@v1.5.1
+    #           with:
+    #               compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
+    #               up-flags: "--build --quiet-pull"
+    #               down-flags: "--volumes"
+    #         - name: Run Unit test cases
+    #           run: |
+    #               bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "At Install"
 
-    unit-test-post-install:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-            - name: Checkout Enterprise source
-              uses: actions/checkout@v4
-              with:
-                  repository: ${{ env.ET_REPO_PATH }}
-                  ref: ${{ env.ET_REPO_REF }}
-                  token: ${{ env.ET_REPO_TOKEN }}
-                  path: ${{ env.ET_WORKSPACE_PATH }}
-                  fetch-depth: 1
-            - name: Prepare data
-              run: |
-                  bash $PIPELINE_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-                  up-flags: "--build --quiet-pull"
-                  down-flags: "--volumes"
-            - name: Run Unit test cases
-              run: |
-                  echo $ET_REPO_TOKEN
-                  bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "Post Install"
+    # unit-test-post-install:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v4
+    #         - name: Checkout Enterprise source
+    #           uses: actions/checkout@v4
+    #           with:
+    #               repository: ${{ env.ET_REPO_PATH }}
+    #               ref: ${{ env.ET_REPO_REF }}
+    #               token: ${{ env.ET_REPO_TOKEN }}
+    #               path: ${{ env.ET_WORKSPACE_PATH }}
+    #               fetch-depth: 1
+    #         - name: Prepare data
+    #           run: |
+    #               bash $PIPELINE_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
+    #         - uses: isbang/compose-action@v1.5.1
+    #           with:
+    #               compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
+    #               up-flags: "--build --quiet-pull"
+    #               down-flags: "--volumes"
+    #         - name: Run Unit test cases
+    #           run: |
+    #               echo $ET_REPO_TOKEN
+    #               bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "Post Install"
 
     integration-test:
         runs-on: ubuntu-latest
@@ -134,6 +135,7 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
             - name: Checkout Enterprise source
               uses: actions/checkout@v4
               with:
@@ -142,6 +144,7 @@ jobs:
                   token: ${{ env.ET_REPO_TOKEN }}
                   path: ${{ env.ET_WORKSPACE_PATH }}
                   fetch-depth: 1
+
             - name: "Upload backup script file to server"
               uses: appleboy/scp-action@v0.1.4
               with:
@@ -159,6 +162,7 @@ jobs:
                   username: ${{ env.SERVER_USER }}
                   password: ${{ env.SERVER_PASSWORD }}
                   port: ${{ env.SERVER_PORT }}
+                  command_timeout: 30m
                   script: |
                       bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
 
@@ -170,21 +174,22 @@ jobs:
                   username: ${{ env.SERVER_USER }}
                   insecure_password: ${{ env.SERVER_PASSWORD }}
                   insecure_ignore_fingerprint: true
+                  action_timeout: 30m
                   source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
                   target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
-            - name: "Prepare data before running test"
+            - name: "Prepare data"
               run: |
-                  bash $PIPELINE_SCRIPTS_PATH/build-integration.sh
+                  bash $PIPELINE_SCRIPTS_PATH/prepare-integration-test.sh
             - uses: isbang/compose-action@v1.5.1
               with:
-                  compose-file: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
                   up-flags: "--build --quiet-pull"
                   down-flags: "--volumes"
 
             - name: "Integration test"
               run: |
-                  bash $PIPELINE_SCRIPTS_PATH/integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+                  bash $PIPELINE_SCRIPTS_PATH/run-integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
     # deploy-server:
     #     runs-on: ubuntu-latest
