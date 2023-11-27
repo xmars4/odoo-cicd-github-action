@@ -11,7 +11,7 @@
     "author": "GRAP,Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/pos",
     "license": "AGPL-3",
-    "depends": ["point_of_sale"],
+    "depends": ["point_of_sale", "account_accountant"],
     "data": [
         "views/view_product_template.xml",
     ],
