@@ -6,7 +6,7 @@ from odoo import fields, models
 
 
 class ProductTemplate(models.Model):
-    _inherit = "product.template1"
+    _inherit = "product.template11"
 
     is_discount = fields.Boolean(
         string="Is a Discount",
