@@ -124,6 +124,7 @@ jobs:
 
     integration-test:
         runs-on: ubuntu-latest
+        #fixme
         # if: github.event.action == 'closed' && github.event.pull_request.merged == true
         # needs: [pylint-test, unit-test-at-install, unit-test-post-install]
         env:
@@ -193,10 +194,11 @@ jobs:
 
     deploy-server:
         runs-on: ubuntu-latest
-        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        #fixme
+        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        # needs: [integration-test]
         env:
             SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
-        needs: [integration-test]
         steps:
             - name: Checkout
               uses: actions/checkout@v4
