@@ -16,7 +16,7 @@
         3) Set it active and choose how often you wish to take backups.
         4) If you want to write backups to a remote location you should fill in the SFTP details.
     """,
-    'author': "Yenthe Van Ginneken",
+    'author1': "Yenthe Van Ginneken",
     'website': "http://www.odoo.yenthevg.com",
     'category': 'Administration',
     'version': '16.0.0.1',
