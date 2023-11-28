@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "${PIPELINE_UTILS_SCRIPT_PATH}"
+source "${CICD_UTILS_SCRIPTS_PATH}"
 show_separator "Start analyzing log file"
 
 function main() {
@@ -11,7 +11,7 @@ function main() {
 Please take a look at the attached log file🔬
 EOF
     )
-    analyze_log_file $failed_message
+    analyze_log_file "$failed_message"
 }
 
 main

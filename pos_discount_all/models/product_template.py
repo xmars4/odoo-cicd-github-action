@@ -15,5 +15,6 @@ class ProductTemplate(models.Model):
         " ignored when computing the amount without discount."
         " If you use 'Pos Discount' Odoo module, you should"
         " check this box for the product you configured"
-        " as the 'Discount Product' on your PoS config.",
+        " as the 'Discount Product' on your PoS config."
+        "see me haha, i come from CICD process bro !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
     )

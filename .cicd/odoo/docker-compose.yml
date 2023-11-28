@@ -13,10 +13,7 @@ services:
             - backend
 
     odoo16:
-        image: xmars/odoo16-cicd
-        build:
-            context: dockerfile
-            dockerfile: Dockerfile
+        image: xmars/xmars4:odoo-cicd-github-action
         depends_on:
             - db
         environment:
@@ -26,7 +23,6 @@ services:
             - PASSWORD=odoo
         volumes:
             - ../../:/mnt/custom-addons # customize addons
-            - ./et-addons:/mnt/et-addons # odoo enterprise addons.
             - ./etc:/etc/odoo
             - ./logs:/var/log/odoo
         networks:

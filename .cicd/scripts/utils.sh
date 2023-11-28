@@ -14,14 +14,14 @@ function docker_compose {
 function docker_compose_clean {
     cd $ODOO_DOCKER_COMPOSE_PATH
     docker_compose down -v
-    rm -f $LOG_FILE_OUTSIDE
+    rm -f $ODOO_LOG_FILE_HOST
 }
 
 function get_config_value {
     param=$1
-    grep -q -E "^\s*\b${param}\b\s*=" "$CONFIG_FILE"
+    grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_CONFIG_FILE"
     if [[ $? == 0 ]]; then
-        value=$(grep -E "^\s*\b${param}\b\s*=" "$CONFIG_FILE" | cut -d " " -f3 | sed 's/["\n\r]//g')
+        value=$(grep -E "^\s*\b${param}\b\s*=" "$ODOO_CONFIG_FILE" | cut -d " " -f3 | sed 's/["\n\r]//g')
     fi
     echo "$value"
 }
@@ -140,16 +140,16 @@ function analyze_log_file {
     success_message=$2
     [ -z $success_message ] && success_message="We passed all test cases, well done!"
 
-    [ -f ${LOG_FILE_OUTSIDE} ]
+    [ -f ${ODOO_LOG_FILE_HOST} ]
     if [ $? -ne 0 ]; then
         show_separator "$success_message"
         return 0
     fi
 
-    grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $LOG_FILE_OUTSIDE >/dev/null 2>&1
+    grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $ODOO_LOG_FILE_HOST >/dev/null 2>&1
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
-        send_file_telegram_default "$LOG_FILE_OUTSIDE" "$failed_message"
+        send_file_telegram_default "$ODOO_LOG_FILE_HOST" "$failed_message"
         exit 1
     fi
     show_separator "$success_message"

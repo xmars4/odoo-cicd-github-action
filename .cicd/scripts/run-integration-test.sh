@@ -1,5 +1,5 @@
 #!/bin/bash
-source "${PIPELINE_UTILS_SCRIPT_PATH}"
+source "${CICD_UTILS_SCRIPTS_PATH}"
 
 populate_variables() {
     declare -g received_backup_file_path=$1
@@ -18,9 +18,9 @@ populate_variables() {
 
 get_config_value() {
     param=$1
-    grep -q -E "^\s*\b${param}\b\s*=" "$CONFIG_FILE"
+    grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_CONFIG_FILE"
     if [[ $? == 0 ]]; then
-        value=$(grep -E "^\s*\b${param}\b\s*=" "$CONFIG_FILE" | cut -d " " -f3 | sed 's/["\n\r]//g')
+        value=$(grep -E "^\s*\b${param}\b\s*=" "$ODOO_CONFIG_FILE" | cut -d " " -f3 | sed 's/["\n\r]//g')
     fi
     echo "$value"
 }
@@ -29,16 +29,16 @@ function update_config_file_after_restoration {
     install_addons=$(get_list_addons "$ODOO_CUSTOM_ADDONS_PATH")
     custom_addons=$(get_list_addons_should_run_test "$ODOO_CUSTOM_ADDONS_PATH")
     tagged_custom_addons=$(echo $custom_addons | sed "s/,/,\//g" | sed "s/^/\//")
-    sed -i "s/^\s*command\s*.*//g" $CONFIG_FILE
+    sed -i "s/^\s*command\s*.*//g" $ODOO_CONFIG_FILE
     echo -en "\ncommand = \
     --stop-after-init \
     --workers 0 \
     --database $ODOO_TEST_DATABASE_NAME \
-    --logfile $LOG_FILE \
+    --logfile $ODOO_LOG_FILE_CONTAINER \
     --log-level error \
     --update $custom_addons \
     --init $install_addons \
-    --test-tags ${tagged_custom_addons}\n" >>$CONFIG_FILE
+    --test-tags ${tagged_custom_addons}\n" >>$ODOO_CONFIG_FILE
 }
 
 copy_backup() {
