@@ -30,7 +30,7 @@ services:
             - "8069:8069"
             - "8072:8072"
         volumes:
-            - ../../:/mnt/custom-addons # customize addons
+            - ../:/mnt/custom-addons # customize addons
             - ./etc:/etc/odoo
             - ./logs:/var/log/odoo
             - odoo-data:/var/lib/odoo
