@@ -13,7 +13,7 @@ services:
             - backend
 
     odoo16:
-        image: xmars/vdx-vn:bep-hc
+        image: xmars/xmars4:odoo-cicd-github-action
         depends_on:
             - db
         environment:

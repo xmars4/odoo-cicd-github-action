@@ -20,7 +20,7 @@ Install docker and docker compose
 
     ```shell
     # replace <github username> and <repository name> with correct values
-    # e.g: image_tag=xmars/vdx-vn:bep-hc .
+    # e.g: image_tag=xmars/xmars4:odoo-cicd-github-action .
     image_tag=xmars/<github username>:<repository name>
     
     cd .build
