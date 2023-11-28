@@ -18,10 +18,7 @@ services:
         restart: always
 
     odoo16:
-        image: xmars/odoo:16
-        build:
-            context: dockerfile
-            dockerfile: Dockerfile
+        image: xmars/xmars4:odoo-cicd-github-action
         depends_on:
             - db
         environment:
@@ -33,8 +30,7 @@ services:
             - "8069:8069"
             - "8072:8072"
         volumes:
-            - ../:/mnt/custom-addons # customize addons
-            - ./et-addons:/mnt/et-addons # odoo enterprise addons
+            - ../../:/mnt/custom-addons # customize addons
             - ./etc:/etc/odoo
             - ./logs:/var/log/odoo
             - odoo-data:/var/lib/odoo

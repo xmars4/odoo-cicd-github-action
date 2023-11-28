@@ -1,4 +1,0 @@
-websocket
-phonenumbers
-paramiko==3.3.1
-pyOpenSSL==22.1.0
