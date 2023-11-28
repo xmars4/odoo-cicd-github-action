@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "${PIPELINE_UTILS_SCRIPT_PATH}"
+source "${CICD_UTILS_SCRIPTS_PATH}"
 
 function populate_variables() {
     declare -g test_type=$1
@@ -22,8 +22,8 @@ function set_list_addons {
 }
 
 function update_config_file {
-    sed -i "s/^\s*command\s*.*//g" $CONFIG_FILE
-    sed -i "s/^\s*without_demo\s*.*//g" $CONFIG_FILE
+    sed -i "s/^\s*command\s*.*//g" $ODOO_CONFIG_FILE
+    sed -i "s/^\s*without_demo\s*.*//g" $ODOO_CONFIG_FILE
 
     test_tags=
 
@@ -31,8 +31,8 @@ function update_config_file {
     --stop-after-init \
     --workers 0 \
     --database $ODOO_TEST_DATABASE_NAME \
-    --logfile "$LOG_FILE" \
-    --log-level error " >>$CONFIG_FILE
+    --logfile "$ODOO_LOG_FILE_CONTAINER" \
+    --log-level error " >>$ODOO_CONFIG_FILE
 
     tagged_custom_addons=$(echo $custom_addons | sed "s/,/,\//g" | sed "s/^/\//")
     if [[ $test_type == 'at_install' ]]; then
@@ -42,11 +42,11 @@ function update_config_file {
     fi
     if [[ -z $without_demo_addons ]]; then
         echo -en " --init ${custom_addons} \
-        --test-tags $test_tags\n" >>$CONFIG_FILE
+        --test-tags $test_tags\n" >>$ODOO_CONFIG_FILE
     else
         echo -en " --init ${custom_addons} \
         --without-demo $without_demo_addons \
-        --test-tags $test_tags\n" >>$CONFIG_FILE
+        --test-tags $test_tags\n" >>$ODOO_CONFIG_FILE
     fi
 }
 

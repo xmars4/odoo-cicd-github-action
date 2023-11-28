@@ -6,26 +6,20 @@ on:
 
 env:
     ODOO_IMAGE_TAG: xmars/xmars4:odoo-cicd-github-action
-    CICD_ODOO_OPTIONS: ${{ github.workspace }}/.cicd/conf/odoo.json
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
-    PIPELINE_SCRIPTS_PATH: ${{ github.workspace }}/.cicd/scripts
-    PIPELINE_UTILS_SCRIPT_PATH: ${{ github.workspace }}/.cicd/scripts/utils.sh
-    ODOO_WORKSPACE: ${{ github.workspace }}/.cicd/odoo
-    CONFIG_FILE: ${{ github.workspace }}/.cicd/odoo/etc/odoo.conf
+    ODOO_CONFIG_FILE: ${{ github.workspace }}/.cicd/odoo/etc/odoo.conf
     ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.cicd/odoo
     ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    ODOO_TEST_DATABASE_NAME: testing_db
-    LOG_FILE: /var/log/odoo/odoo.log
-    LOG_FILE_OUTSIDE: ${{ github.workspace }}/.cicd/odoo/logs/odoo.log
-    ODOO_TMP_BACKUP_FOLDER: ${{ github.workspace }}/.cicd/.tmp/server-backup
+    ODOO_TEST_DATABASE_NAME: odoo-test
+    ODOO_LOG_FILE_CONTAINER: /var/log/odoo/odoo.log
+    ODOO_LOG_FILE_HOST: ${{ github.workspace }}/.cicd/odoo/logs/odoo.log
+
+    CICD_ODOO_OPTIONS: ${{ github.workspace }}/.cicd/conf/odoo.json
+    CICD_SCRIPTS_PATH: ${{ github.workspace }}/.cicd/scripts
+    CICD_UTILS_SCRIPTS_PATH: ${{ github.workspace }}/.cicd/scripts/utils.sh
 
     TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
     TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-
-    ET_REPO_TOKEN: ${{ secrets.ET_REPO_TOKEN }}
-    ET_REPO_PATH: ${{ vars.ET_REPO_PATH }}
-    ET_REPO_REF: ${{ vars.ET_REPO_REF }}
-    ET_WORKSPACE_PATH: ${{ github.workspace }}/.cicd/odoo/et-addons
 
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_URL: ${{ github.event.pull_request.html_url }}
@@ -41,7 +35,6 @@ env:
     SERVER_DEPLOY_PATH: ${{ vars.SERVER_DEPLOY_PATH }}
     SERVER_ODOO_URL: ${{ vars.SERVER_ODOO_URL }}
     SERVER_ODOO_DB_NAME: ${{ vars.SERVER_ODOO_DB_NAME }}
-    SERVER_ODOO_IMAGE_TAG: ${{ vars.SERVER_ODOO_IMAGE_TAG }}
 
 jobs:
     # TODO: integrate with Sonarqube
@@ -59,7 +52,7 @@ jobs:
 
             - name: Prepare data
               run: |
-                  bash $PIPELINE_SCRIPTS_PATH/prepare-pylint-test.sh
+                  bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
             - uses: isbang/compose-action@v1.5.1
               with:
                   compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
@@ -68,7 +61,7 @@ jobs:
 
             - name: Run Pylint Test cases
               run: |
-                  bash $PIPELINE_SCRIPTS_PATH/run-pylint-test.sh
+                  bash $CICD_SCRIPTS_PATH/run-pylint-test.sh
 
     unit-test-at-install:
         runs-on: ubuntu-latest
@@ -84,7 +77,7 @@ jobs:
 
             - name: Prepare data
               run: |
-                  bash $PIPELINE_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
+                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
             - uses: isbang/compose-action@v1.5.1
               with:
                   compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
@@ -92,7 +85,7 @@ jobs:
                   down-flags: "--volumes"
             - name: Run Unit test cases
               run: |
-                  bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "At Install"
+                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "At Install"
 
     unit-test-post-install:
         runs-on: ubuntu-latest
@@ -108,7 +101,7 @@ jobs:
 
             - name: Prepare data
               run: |
-                  bash $PIPELINE_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
+                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
             - uses: isbang/compose-action@v1.5.1
               with:
                   compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
@@ -117,114 +110,113 @@ jobs:
 
             - name: Run Unit test cases
               run: |
-                  echo $ET_REPO_TOKEN
-                  bash $PIPELINE_SCRIPTS_PATH/run-unit-test.sh "Post Install"
+                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "Post Install"
 
-    # integration-test:
-    #     runs-on: ubuntu-latest
-    #     if: github.event.action == 'closed' && github.event.pull_request.merged == true
-    #     needs: [pylint-test, unit-test-at-install, unit-test-post-install]
-    #     env:
-    #         SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
-    #         SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
-    #         LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
-    #         LOCAL_BACKUP_FILE: odoo.tar.gz
+    integration-test:
+        runs-on: ubuntu-latest
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [pylint-test, unit-test-at-install, unit-test-post-install]
+        env:
+            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
+            SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
+            LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
+            LOCAL_BACKUP_FILE: odoo.tar.gz
 
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    #         - name: Login to Docker Hub
-    #           uses: docker/login-action@v3
-    #           with:
-    #               username: ${{ env.DOCKERHUB_USERNAME }}
-    #               password: ${{ env.DOCKERHUB_TOKEN }}
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ env.DOCKERHUB_USERNAME }}
+                  password: ${{ env.DOCKERHUB_TOKEN }}
 
-    #         - name: "Upload backup script file to server"
-    #           uses: appleboy/scp-action@v0.1.4
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-backup.sh
-    #               target: "/tmp"
+            - name: "Upload backup script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.CICD_SCRIPTS_PATH }}/server-backup.sh
+                  target: "/tmp"
 
-    #         - name: "Backup Odoo on server"
-    #           uses: appleboy/ssh-action@v1.0.0
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               command_timeout: 30m
-    #               script: |
-    #                   bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_ODOO_IMAGE_TAG}}"
+            - name: "Backup Odoo on server"
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  command_timeout: 30m
+                  script: |
+                      bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.ODOO_IMAGE_TAG}}"
 
-    #         - name: "Download backup file"
-    #           uses: nicklasfrahm/scp-action@main
-    #           with:
-    #               direction: download
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               insecure_password: ${{ env.SERVER_PASSWORD }}
-    #               insecure_ignore_fingerprint: true
-    #               action_timeout: 30m
-    #               source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-    #               target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+            - name: "Download backup file"
+              uses: nicklasfrahm/scp-action@main
+              with:
+                  direction: download
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  insecure_password: ${{ env.SERVER_PASSWORD }}
+                  insecure_ignore_fingerprint: true
+                  action_timeout: 30m
+                  source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
+                  target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
-    #         - name: "Prepare data"
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/prepare-integration-test.sh
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-    #               up-flags: "--quiet-pull"
-    #               down-flags: "--volumes"
+            - name: "Prepare data"
+              run: |
+                  bash $CICD_SCRIPTS_PATH/prepare-integration-test.sh
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
+                  up-flags: "--quiet-pull"
+                  down-flags: "--volumes"
 
-    #         - name: "Integration test"
-    #           run: |
-    #               bash $PIPELINE_SCRIPTS_PATH/run-integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+            - name: "Integration test"
+              run: |
+                  bash $CICD_SCRIPTS_PATH/run-integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
 
-    # deploy-server:
-    #     runs-on: ubuntu-latest
-    #     if: github.event.action == 'closed' && github.event.pull_request.merged == true
-    #     needs: [integration-test]
-    #     env:
-    #         SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+    deploy-server:
+        runs-on: ubuntu-latest
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [integration-test]
+        env:
+            SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    #         - name: "Upload deploy script file to server"
-    #           uses: appleboy/scp-action@v0.1.4
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               source: ${{ env.PIPELINE_SCRIPTS_PATH }}/server-deploy.sh
-    #               target: "/tmp"
+            - name: "Upload deploy script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.CICD_SCRIPTS_PATH }}/server-deploy.sh
+                  target: "/tmp"
 
-    #         - name: "Deploy to server"
-    #           uses: appleboy/ssh-action@v1.0.0
-    #           env:
-    #               SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
-    #               SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
-    #               SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
-    #               GITHUB_STEP_SUMMARY: ${{ env.GITHUB_STEP_SUMMARY }}
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               password: ${{ env.SERVER_PASSWORD }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               script: |
-    #                   bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
-    #         - name: The Deploy step has failed
-    #           if: ${{ failure() }}
-    #           run: |
-    #               bash ${{env.PIPELINE_SCRIPTS_PATH}}/post-server-deploy.sh "failed"
-    #         - name: The Deploy step has successful
-    #           if: ${{ success() }}
-    #           run: |
-    #               bash ${{env.PIPELINE_SCRIPTS_PATH}}/post-server-deploy.sh "success"
+            - name: "Deploy to server"
+              uses: appleboy/ssh-action@v1.0.0
+              env:
+                  SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
+                  SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
+                  SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
+                  GITHUB_STEP_SUMMARY: ${{ env.GITHUB_STEP_SUMMARY }}
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  password: ${{ env.SERVER_PASSWORD }}
+                  port: ${{ env.SERVER_PORT }}
+                  script: |
+                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
+            - name: The Deploy step has failed
+              if: ${{ failure() }}
+              run: |
+                  bash ${{env.CICD_SCRIPTS_PATH}}/post-server-deploy.sh "failed"
+            - name: The Deploy step has successful
+              if: ${{ success() }}
+              run: |
+                  bash ${{env.CICD_SCRIPTS_PATH}}/post-server-deploy.sh "success"

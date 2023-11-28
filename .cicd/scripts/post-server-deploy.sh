@@ -1,5 +1,5 @@
 #!/bin/bash
-source "${PIPELINE_UTILS_SCRIPT_PATH}"
+source "${CICD_UTILS_SCRIPTS_PATH}"
 
 function main {
     status=$1

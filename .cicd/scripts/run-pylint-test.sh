@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "${PIPELINE_UTILS_SCRIPT_PATH}"
+source "${CICD_UTILS_SCRIPTS_PATH}"
 show_separator "Start analyzing log file"
 
 function main() {
