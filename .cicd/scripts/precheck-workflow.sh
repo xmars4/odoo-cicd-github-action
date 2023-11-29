@@ -15,7 +15,7 @@ EOF
     fi
 
     if [[ $PR_EVENT_NAME == 'closed' ]] && [[ $PR_WAS_MERGED == 'false' ]]; then
-        echo "Closed PR manually, ignored workflow"
+        echo "PR#${PR_NUMBER} was closed manually, ignored workflow"
         exit 1
     fi
 }
