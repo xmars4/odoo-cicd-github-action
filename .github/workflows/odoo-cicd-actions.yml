@@ -39,7 +39,6 @@ env:
     SERVER_ODOO_DB_NAME: ${{ vars.SERVER_ODOO_DB_NAME }}
 
 jobs:
-    # TODO: integrate with Sonarqube
     pylint-test:
         runs-on: ubuntu-latest
         steps:
