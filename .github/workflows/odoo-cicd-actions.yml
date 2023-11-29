@@ -48,6 +48,7 @@ jobs:
         runs-on: ubuntu-latest
         if: github.event_name == 'push'
         steps:
+            - uses: actions/checkout@v4
             - run: |
                   bash $CICD_SCRIPTS_PATH/check-forced-push.sh
 
