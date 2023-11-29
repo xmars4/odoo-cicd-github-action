@@ -27,6 +27,7 @@ env:
 
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_URL: ${{ github.event.pull_request.html_url }}
+    EVENT_NAME: ${{ github.event_name }}
     PUSH_BRANCH_NAME: ${{ github.ref_name }}
     PUSH_USERNAME: ${{ github.triggering_actor }}
     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -46,7 +47,6 @@ jobs:
     # TODO: integrate with Sonarqube
     check-forced-push:
         runs-on: ubuntu-latest
-        if: github.event_name == 'push'
         steps:
             - uses: actions/checkout@v4
             - run: |
