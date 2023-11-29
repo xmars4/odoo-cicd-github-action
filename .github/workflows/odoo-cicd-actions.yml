@@ -3,10 +3,6 @@ name: ci/cd
 on:
     pull_request:
         types: [reopened, opened, synchronize, ready_for_review, closed]
-    push:
-        branches:
-            - "production"
-            - "dev"
 
 env:
     ODOO_IMAGE_TAG: xmars/xmars4:odoo-cicd-github-action
@@ -14,7 +10,7 @@ env:
     ODOO_CONFIG_FILE: ${{ github.workspace }}/.cicd/odoo/etc/odoo.conf
     ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.cicd/odoo
     ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
-    ODOO_TEST_DATABASE_NAME: odoo-test
+    ODOO_TEST_DATABASE_NAME: odoo_test
     ODOO_LOG_FILE_CONTAINER: /var/log/odoo/odoo.log
     ODOO_LOG_FILE_HOST: ${{ github.workspace }}/.cicd/odoo/logs/odoo.log
 
@@ -24,16 +20,13 @@ env:
 
     TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
     TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+    DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_URL: ${{ github.event.pull_request.html_url }}
     PR_EVENT_NAME: ${{ github.event.action }}
     PR_WAS_MERGED: ${{ github.event.pull_request.merged }}
-    EVENT_NAME: ${{ github.event_name }}
-    PUSH_BRANCH_NAME: ${{ github.ref_name }}
-    PUSH_USERNAME: ${{ github.triggering_actor }}
-    DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-    DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     SERVER_HOST: ${{ vars.SERVER_HOST }}
     SERVER_USER: ${{ vars.SERVER_USER }}
@@ -47,16 +40,8 @@ env:
 
 jobs:
     # TODO: integrate with Sonarqube
-    check-valid-event:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - run: |
-                  bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
-
     pylint-test:
         runs-on: ubuntu-latest
-        needs: [check-valid-event]
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -69,6 +54,7 @@ jobs:
 
             - name: Prepare data
               run: |
+                  bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
                   bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
             - uses: isbang/compose-action@v1.5.1
               with:
@@ -82,7 +68,7 @@ jobs:
 
     unit-test-at-install:
         runs-on: ubuntu-latest
-        needs: [check-valid-event]
+        needs: [pylint-test]
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -107,7 +93,7 @@ jobs:
 
     unit-test-post-install:
         runs-on: ubuntu-latest
-        needs: [check-valid-event]
+        needs: [pylint-test]
         steps:
             - name: Checkout
               uses: actions/checkout@v4
