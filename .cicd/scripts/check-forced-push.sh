@@ -13,4 +13,11 @@ EOF
         send_message_telegram_default "$message"
         exit 1
     fi
+
+    if [[ $PR_EVENT_NAME == 'closed' ]] && [[ $PR_WAS_MERGED == 'false' ]]; then
+        echo "Closed PR manually, ignored workflow"
+        exit 1
+    fi
 }
+
+main

@@ -27,6 +27,8 @@ env:
 
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_URL: ${{ github.event.pull_request.html_url }}
+    PR_EVENT_NAME: ${{ github.event.action }}
+    PR_WAS_MERGED: ${{ github.event.pull_request.merged }}
     EVENT_NAME: ${{ github.event_name }}
     PUSH_BRANCH_NAME: ${{ github.ref_name }}
     PUSH_USERNAME: ${{ github.triggering_actor }}
