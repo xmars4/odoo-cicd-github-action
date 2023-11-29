@@ -62,7 +62,7 @@ restart_instance() {
 }
 
 create_empty_db() {
-    docker_odoo_exec "psql -h \"$db_host\" -U $db_user postgres -c \"CREATE DATABASE '${ODOO_TEST_DATABASE_NAME}' ENCODING 'UNICODE' LC_COLLATE 'C' TEMPLATE template0;\""
+    docker_odoo_exec "psql -h \"$db_host\" -U $db_user postgres -c \"CREATE DATABASE ${ODOO_TEST_DATABASE_NAME} ENCODING 'UNICODE' LC_COLLATE 'C' TEMPLATE template0;\""
 }
 
 restore_db() {
