@@ -91,7 +91,6 @@ function get_list_addons_ignored_test {
         done
     fi
     echo $addons_ignored_test
-
 }
 
 function wait_until_odoo_shutdown {

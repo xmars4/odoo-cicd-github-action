@@ -110,10 +110,6 @@ pull_latest_code() {
 set_list_addons() {
     declare -g CUSTOM_ADDONS
     CUSTOM_ADDONS=$(get_list_addons "$server_custom_addons_path")
-    if [ -z $CUSTOM_ADDONS ]; then
-        echo "Can't find any Odoo custom addons !"
-        exit 1
-    fi
 }
 
 update_config_file() {
