@@ -149,6 +149,7 @@ function analyze_log_file {
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
         send_file_telegram_default "$ODOO_LOG_FILE_HOST" "$failed_message"
+        cat $ODOO_LOG_FILE_HOST
         exit 1
     fi
     show_separator "$success_message"
