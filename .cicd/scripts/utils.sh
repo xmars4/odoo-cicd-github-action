@@ -148,8 +148,8 @@ function analyze_log_file {
     grep -m 1 -P '^[0-9-\s:,]+(ERROR|CRITICAL)' $ODOO_LOG_FILE_HOST >/dev/null 2>&1
     error_exist=$?
     if [ $error_exist -eq 0 ]; then
-        send_file_telegram_default "$ODOO_LOG_FILE_HOST" "$failed_message"
         cat $ODOO_LOG_FILE_HOST
+        send_file_telegram_default "$ODOO_LOG_FILE_HOST" "$failed_message"
         exit 1
     fi
     show_separator "$success_message"
