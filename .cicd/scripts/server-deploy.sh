@@ -122,7 +122,7 @@ update_config_file() {
 update_odoo_services() {
     cd "${server_docker_compose_path}"
     docker compose pull
-    docker compose up -d --build
+    docker compose restart
 }
 
 function get_odoo_login_url() {
