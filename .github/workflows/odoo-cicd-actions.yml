@@ -3,6 +3,9 @@ name: ci/cd
 on:
     pull_request:
         types: [reopened, opened, synchronize, ready_for_review, closed]
+        paths-ignore:
+            - "README.md"
+            - ".build/README.md"
 
 env:
     ODOO_IMAGE_TAG: xmars/xmars4:odoo-cicd-github-action
