@@ -92,7 +92,7 @@ jobs:
 
     unit-test-post-install:
         runs-on: ubuntu-latest
-        needs: [pylint-test]
+        needs: [unit-test-at-install]
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -119,7 +119,7 @@ jobs:
     integration-test:
         runs-on: ubuntu-latest
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        needs: [pylint-test, unit-test-at-install, unit-test-post-install]
+        needs: [unit-test-post-install]
         env:
             SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
