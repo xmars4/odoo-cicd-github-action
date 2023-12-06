@@ -7,7 +7,7 @@ services:
             - POSTGRES_USER=odoo
             - POSTGRES_DB=postgres
         ports:
-            - "5432:5432"
+            - "15432:5432"
         volumes:
             - postgresql-data:/var/lib/postgresql/data
             - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
@@ -26,8 +26,8 @@ services:
             - USER=odoo
             - PASSWORD=odoo
         ports:
-            - "8069:8069"
-            - "8072:8072"
+            - "18069:8069"
+            - "18072:8072"
         volumes:
             - ../:/mnt/custom-addons # customize addons
             - ./etc:/etc/odoo
