@@ -5,6 +5,7 @@ server_config_file=$3         # the path to Odoo config file
 # fixme: can't pass private key file from github action to server like Jenkins, solution ??
 git_private_key_file=$4 # private key on server use to authenticate on Github
 server_odoo_url=$5      # odoo service url, to check service is up or not
+server_odoo_db_name=$6
 
 ssh_folder="$HOME/.ssh"
 original_repo_remote_name="origin"
@@ -115,7 +116,7 @@ set_list_addons() {
 update_config_file() {
     sed -i "s/^\s*command\s*=.*//g" $server_config_file
     sed '/^$/N;/^\n$/D' $server_config_file >temp && mv temp $server_config_file
-    echo -e "\ncommand = -d ${SERVER_ODOO_DB_NAME} -i ${CUSTOM_ADDONS} -u ${CUSTOM_ADDONS}" >>"${server_config_file}"
+    echo -e "\ncommand = -d ${server_odoo_db_name} -i ${CUSTOM_ADDONS} -u ${CUSTOM_ADDONS}" >>"${server_config_file}"
 }
 
 reset_config_file() {

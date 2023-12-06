@@ -215,7 +215,7 @@ jobs:
                   password: ${{ env.SERVER_PASSWORD }}
                   port: ${{ env.SERVER_PORT }}
                   script: |
-                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}"
+                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}" "${{ env.SERVER_ODOO_DB_NAME }}"
             - name: The Deploy step has failed
               if: ${{ failure() }}
               run: |
