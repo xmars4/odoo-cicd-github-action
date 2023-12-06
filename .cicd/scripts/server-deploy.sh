@@ -113,10 +113,13 @@ set_list_addons() {
 }
 
 update_config_file() {
-    # replace old command argument
     sed -i "s/^\s*command\s*=.*//g" $server_config_file
     sed '/^$/N;/^\n$/D' $server_config_file >temp && mv temp $server_config_file
-    echo -e "\ncommand = -i ${CUSTOM_ADDONS} -u ${CUSTOM_ADDONS}" >>"${server_config_file}"
+    echo -e "\ncommand = -d ${SERVER_ODOO_DB_NAME} -i ${CUSTOM_ADDONS} -u ${CUSTOM_ADDONS}" >>"${server_config_file}"
+}
+
+reset_config_file() {
+    sed -i "s/^\s*command\s*=.*//g" $server_config_file
 }
 
 update_odoo_services() {
@@ -161,6 +164,7 @@ main() {
     update_config_file
     update_odoo_services
     wait_until_odoo_available
+    reset_config_file
 }
 
 main
