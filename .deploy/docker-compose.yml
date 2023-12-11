@@ -6,8 +6,6 @@ services:
             - POSTGRES_PASSWORD=odoo
             - POSTGRES_USER=odoo
             - POSTGRES_DB=postgres
-        ports:
-            - "5432:5432"
         volumes:
             - postgresql-data:/var/lib/postgresql/data
             - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
