@@ -3,6 +3,7 @@ services:
     db:
         image: postgres:16
         #fixme: set db password by environment variable or file
+        # try to connect to db with password in file, not successful yet
         environment:
             - POSTGRES_PASSWORD=/run/secrets/postgres_password
             - POSTGRES_USER=odoo
