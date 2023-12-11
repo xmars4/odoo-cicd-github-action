@@ -114,13 +114,16 @@ set_list_addons() {
 }
 
 update_config_file() {
-    sed -i "s/^\s*command\s*=.*//g" $server_config_file
+    sed -i "s/^[ #]*command\s*=.*//g" $server_config_file
     sed '/^$/N;/^\n$/D' $server_config_file >temp && mv temp $server_config_file
     echo -e "\ncommand = -d ${server_odoo_db_name} -i ${CUSTOM_ADDONS} -u ${CUSTOM_ADDONS}" >>"${server_config_file}"
 }
 
 reset_config_file() {
-    sed -i "s/^\s*command\s*=.*//g" $server_config_file
+    sed -i "s/^[ #]*command\s*=.*//g" $server_config_file
+    sed '/^$/N;/^\n$/D' $server_config_file >temp && mv temp $server_config_file
+    cd "${server_docker_compose_path}"
+    docker compose restart
 }
 
 update_odoo_services() {
