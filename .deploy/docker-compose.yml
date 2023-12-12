@@ -44,15 +44,15 @@ services:
             - postgres_password
 
     nginx:
-    image: nginx
-    depends_on:
-        - odoo17
-    volumes:
-        - ./nginx:/etc/nginx/conf.d
-    ports:
-        - "80:80"
-    networks:
-        - frontend
+        image: nginx
+        depends_on:
+            - odoo17
+        volumes:
+            - ./nginx:/etc/nginx/conf.d
+        ports:
+            - "80:80"
+        networks:
+            - frontend
 
 secrets:
     postgres_password:
