@@ -24,7 +24,9 @@ Install docker and docker compose
 3. Create a confile file named **odoo.conf** in folder **[etc/](etc/)**\
 you can reference to the [sample file](etc/odoo.conf.sample)
 
-4. Running Odoo
+4. Create a file named **password.txt** in folder **[postgresql/](postgresql/)** to store DB password
+
+5. Running Odoo
 
     ```shell
     cd $ODOO_DOCKER_PATH/.deploy
@@ -32,16 +34,16 @@ you can reference to the [sample file](etc/odoo.conf.sample)
     docker compose up -d
     ```
 
-5. DONE, your Odoo instance will running on [http://localhost:8069](http://localhost:18069)
+6. DONE, your Odoo instance will running on [http://localhost:8069](http://localhost:18069)
 
-6. _(Optionally)_ Setup log rotate (on host machine)
+7. _(Optionally)_ Setup log rotate (on host machine)
 
     ```shell
     cd $ODOO_DOCKER_PATH/.deploy/scripts
     sudo /bin/bash setup-logrotate.sh
     ```
 
-7. _(Optionally)_ If you want add extra command when run odoo
+8. _(Optionally)_ If you want add extra command when run odoo
 
 - With this option, you can run abitrary odoo commands
 - for instance:
