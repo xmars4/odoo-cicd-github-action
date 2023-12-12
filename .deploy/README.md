@@ -16,13 +16,13 @@ Install docker and docker compose
 
     ```shell
     ODOO_DOCKER_PATH=$HOME/odoo-16
-    git clone https://github.com/xmars4/odoo-cicd-jenkins $ODOO_DOCKER_PATH
+    git clone https://github.com/xmars4/odoo-cicd-github-action $ODOO_DOCKER_PATH
     ```
 
-2. Copy enterprise addons to folder **et-addons**
-
-3. Create a confile file named **odoo.conf** in folder **[etc/](etc/)**\
+2. Create a confile file named **odoo.conf** in folder **[etc/](etc/)**\
 you can reference to the [sample file](etc/odoo.conf.sample)
+
+3. Create a file named **password.txt** in folder **[postgresql/](postgresql/)** to store DB password
 
 4. Running Odoo
 

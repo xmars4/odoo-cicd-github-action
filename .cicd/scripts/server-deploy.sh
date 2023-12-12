@@ -114,13 +114,16 @@ set_list_addons() {
 }
 
 update_config_file() {
-    sed -i "s/^\s*command\s*=.*//g" $server_config_file
+    sed -i "s/^[ #]*command\s*=.*//g" $server_config_file
     sed '/^$/N;/^\n$/D' $server_config_file >temp && mv temp $server_config_file
     echo -e "\ncommand = -d ${server_odoo_db_name} -i ${CUSTOM_ADDONS} -u ${CUSTOM_ADDONS}" >>"${server_config_file}"
 }
 
 reset_config_file() {
-    sed -i "s/^\s*command\s*=.*//g" $server_config_file
+    sed -i "s/^[ #]*command\s*=.*//g" $server_config_file
+    sed '/^$/N;/^\n$/D' $server_config_file >temp && mv temp $server_config_file
+    cd "${server_docker_compose_path}"
+    docker compose restart
 }
 
 update_odoo_services() {
@@ -151,7 +154,7 @@ function wait_until_odoo_available {
     while (($count <= $maximum_count)); do
         http_status=$(echo "foo|bar" | { wget --connect-timeout=5 --server-response --spider --quiet "${server_odoo_login_url}" 2>&1 | awk 'NR==1{print $2}' || true; })
         if [[ $http_status = '200' ]]; then
-            exit 0 # Odoo service is fully up and running
+            return # Odoo service is fully up and running
         fi
         ((count++))
         sleep 5

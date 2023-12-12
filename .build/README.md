@@ -12,15 +12,16 @@ Install docker and docker compose
 
 ## How to build and publish customized Odoo image on Docker hub
 
-0. Clone this repo
+1. Clone this repo
 
-1. Update required libs to [requirements.txt](requirements.txt) and [entrypoint.sh](entrypoint.sh) files before build the image
+2. Update required libs to [requirements.txt](requirements.txt) and [entrypoint.sh](entrypoint.sh) files before build the image
 
-2. Build and push image to docker registry
+3. Build and push image to docker registry
 
     ```shell
     # replace <github username> and <repository name> with correct values
     # e.g: image_tag=xmars/xmars4:odoo-cicd-github-action .
+    
     image_tag=xmars/<github username>:<repository name>
     
     cd .build
@@ -29,10 +30,10 @@ Install docker and docker compose
     docker push $image_tag
     ```
 
-3. Replace *$image_tag* value to below file:
+4. Replace *$image_tag* value to below file:
 
     - [../.github/workflows/odoo-cicd-actions.yml](../.github/workflows/odoo-cicd-actions.yml#L8)
     - [../.deploy/docker-compose.yml](../.deploy/docker-compose.yml#L21)
     - [../.cicd/odoo/docker-compose.yml](../.cicd/odoo/docker-compose.yml#L16)
 
-4. Commit change to Github
+5. Commit change to Github
