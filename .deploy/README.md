@@ -16,17 +16,15 @@ Install docker and docker compose
 
     ```shell
     ODOO_DOCKER_PATH=$HOME/odoo-16
-    git clone https://github.com/xmars4/odoo-cicd-jenkins $ODOO_DOCKER_PATH
+    git clone https://github.com/xmars4/odoo-cicd-github-action $ODOO_DOCKER_PATH
     ```
 
-2. Copy enterprise addons to folder **et-addons**
-
-3. Create a confile file named **odoo.conf** in folder **[etc/](etc/)**\
+2. Create a confile file named **odoo.conf** in folder **[etc/](etc/)**\
 you can reference to the [sample file](etc/odoo.conf.sample)
 
-4. Create a file named **password.txt** in folder **[postgresql/](postgresql/)** to store DB password
+3. Create a file named **password.txt** in folder **[postgresql/](postgresql/)** to store DB password
 
-5. Running Odoo
+4. Running Odoo
 
     ```shell
     cd $ODOO_DOCKER_PATH/.deploy
@@ -34,16 +32,16 @@ you can reference to the [sample file](etc/odoo.conf.sample)
     docker compose up -d
     ```
 
-6. DONE, your Odoo instance will running on [http://localhost:8069](http://localhost:18069)
+5. DONE, your Odoo instance will running on [http://localhost:8069](http://localhost:18069)
 
-7. _(Optionally)_ Setup log rotate (on host machine)
+6. _(Optionally)_ Setup log rotate (on host machine)
 
     ```shell
     cd $ODOO_DOCKER_PATH/.deploy/scripts
     sudo /bin/bash setup-logrotate.sh
     ```
 
-8. _(Optionally)_ If you want add extra command when run odoo
+7. _(Optionally)_ If you want add extra command when run odoo
 
 - With this option, you can run abitrary odoo commands
 - for instance:

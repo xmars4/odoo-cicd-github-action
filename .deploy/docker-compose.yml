@@ -7,7 +7,7 @@ services:
             POSTGRES_USER: odoo
             POSTGRES_DB: postgres
         ports:
-            - "15432:5432"
+            - "5432:5432"
         volumes:
             - postgresql-data:/var/lib/postgresql/data
             - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
@@ -44,15 +44,15 @@ services:
             - postgres_password
 
     nginx:
-        image: nginx
-        depends_on:
-            - odoo17
-        volumes:
-            - ./nginx:/etc/nginx/conf.d
-        ports:
-            - "80:80"
-        networks:
-            - frontend
+    image: nginx
+    depends_on:
+        - odoo17
+    volumes:
+        - ./nginx:/etc/nginx/conf.d
+    ports:
+        - "80:80"
+    networks:
+        - frontend
 
 secrets:
     postgres_password:
