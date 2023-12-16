@@ -89,8 +89,6 @@ restore_backup() {
 
 main() {
     populate_variables $@
-    ls -laht /home/runner/work/odoo-cicd-github-action/odoo-cicd-github-action/odoo.tar.gz
-    ls -laht /github/workspace/odoo.tar.gz
     restore_backup
     wait_until_odoo_shutdown
 

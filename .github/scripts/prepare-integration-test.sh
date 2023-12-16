@@ -9,10 +9,6 @@ function update_config_file {
 function main() {
     update_config_file
     update_services_tag_docker_compose
-    #fixme: remove below lines
-    ls -lah /tmp
-    cat $ODOO_DOCKER_COMPOSE_FILE
-
 }
 
 main "$@"
