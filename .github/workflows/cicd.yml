@@ -1,8 +1,8 @@
 name: ci/cd
-
-on:
-    pull_request:
-        types: [reopened, opened, synchronize, ready_for_review, closed]
+on: push # fixme
+# on:
+#     pull_request:
+#         types: [reopened, opened, synchronize, ready_for_review, closed]
 
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
@@ -119,12 +119,12 @@ jobs:
 
     integration-test:
         runs-on: ubuntu-latest
-        if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        needs: [unit-test-post-install]
+        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        # needs: [unit-test-post-install]
         env:
-            SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
+            SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/backup.sh
 
         steps:
             - name: Checkout
@@ -140,7 +140,7 @@ jobs:
               uses: garygrossgarten/github-action-scp@release
               with:
                   local: ${{ env.CICD_SCRIPTS_PATH }}/server-backup.sh
-                  remote: /tmp/odoo/cicd/backup.sh
+                  remote: ${{ env.SERVER_BACKUP_SCRIPT_PATH }}
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
                   privateKey: ${{ env.SERVER_PRIVATE_KEY }}
@@ -154,7 +154,7 @@ jobs:
                   port: ${{ env.SERVER_PORT }}
                   command_timeout: 30m
                   script: |
-                      bash /tmp/odoo/cicd/backup.sh "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}"
+                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}"
 
             - name: "Download backup file"
               uses: nicklasfrahm/scp-action@main
@@ -183,23 +183,22 @@ jobs:
 
     deploy-server:
         runs-on: ubuntu-latest
-        if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        needs: [integration-test]
+        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        # needs: [integration-test]
         env:
-            SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
+            SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/deploy.sh
         steps:
             - name: Checkout
               uses: actions/checkout@v4
 
             - name: "Upload deploy script file to server"
-              uses: appleboy/scp-action@v0.1.4
+              uses: garygrossgarten/github-action-scp@release
               with:
+                  local: ${{ env.CICD_SCRIPTS_PATH }}/server-deploy.sh
+                  remote: ${{ env.SERVER_DEPLOY_SCRIPT_PATH }}
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  key: ${{ env.SERVER_PRIVATE_KEY }}
-                  port: ${{ env.SERVER_PORT }}
-                  source: ${{ env.CICD_SCRIPTS_PATH }}/server-deploy.sh
-                  target: "/tmp"
+                  privateKey: ${{ env.SERVER_PRIVATE_KEY }}
 
             - name: "Deploy to server"
               uses: appleboy/ssh-action@v1.0.0
@@ -214,7 +213,7 @@ jobs:
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   script: |
-                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}" "${{ env.SERVER_ODOO_DB_NAME }}"
+                      bash ${{env.SERVER_DEPLOY_SCRIPT_PATH}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}" "${{ env.SERVER_ODOO_DB_NAME }}"
             - name: The Deploy step has failed
               if: ${{ failure() }}
               run: |
