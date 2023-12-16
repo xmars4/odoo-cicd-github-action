@@ -64,6 +64,8 @@ get_odoo_container_id() {
 }
 
 execute_command_inside_odoo_container() {
+    echo 'fking image ag oodo: '
+    echo $odoo_image_tag
     odoo_container_id=$(get_odoo_container_id $odoo_image_tag)
     if [[ -z $odoo_container_id ]]; then
         echo "There is no running Odoo container with tag name '$odoo_image_tag'"
