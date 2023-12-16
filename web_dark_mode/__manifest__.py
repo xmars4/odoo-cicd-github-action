@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    "name": "Dark Mode",
+    "name": "Dark Mode.",
     "summary": "Enabled Dark Mode for the Odoo Backend",
     "license": "AGPL-3",
     "version": "16.0.1.0.2",
