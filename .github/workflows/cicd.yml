@@ -1,8 +1,7 @@
 name: ci/cd
-on: push # fixme
-# on:
-#     pull_request:
-#         types: [reopened, opened, synchronize, ready_for_review, closed]
+on:
+    pull_request:
+        types: [reopened, opened, synchronize, ready_for_review, closed]
 
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
@@ -119,8 +118,8 @@ jobs:
 
     integration-test:
         runs-on: ubuntu-latest
-        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        # needs: [unit-test-post-install]
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [unit-test-post-install]
         env:
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
@@ -183,8 +182,8 @@ jobs:
 
     deploy-server:
         runs-on: ubuntu-latest
-        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        # needs: [integration-test]
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [integration-test]
         env:
             SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/deploy.sh
         steps:
