@@ -4,7 +4,6 @@ on:
     pull_request:
         types: [reopened, opened, synchronize, ready_for_review, closed]
 
-# fixme: when change on build folder, rebuild and upload the image , and update deploy script to down docker compose and docker up
 env:
     ODOO_IMAGE_TAG: xmars/xmars4:odoo-cicd-github-action
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
