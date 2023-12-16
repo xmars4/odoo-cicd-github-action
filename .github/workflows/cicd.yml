@@ -128,7 +128,7 @@ jobs:
         env:
             SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
-            LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
+            LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
 
         steps:
             - name: Checkout
