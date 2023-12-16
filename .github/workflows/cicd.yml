@@ -5,7 +5,6 @@ on:
         types: [reopened, opened, synchronize, ready_for_review, closed]
 
 env:
-    ODOO_IMAGE_TAG: xmars/xmars4:odoo-cicd-github-action
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
     ODOO_CONFIG_FILE: ${{ github.workspace }}/.cicd/odoo/etc/odoo.conf
     ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.cicd/odoo
@@ -29,6 +28,8 @@ env:
     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
     SERVER_PRIVATE_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
+
+    ODOO_IMAGE_TAG: ${{ vars.ODOO_IMAGE_TAG }}
 
     SERVER_HOST: ${{ vars.SERVER_HOST }}
     SERVER_USER: ${{ vars.SERVER_USER }}
