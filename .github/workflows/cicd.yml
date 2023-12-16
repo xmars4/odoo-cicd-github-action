@@ -6,16 +6,16 @@ on:
 
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
-    ODOO_CONFIG_FILE: ${{ github.workspace }}/.cicd/odoo/etc/odoo.conf
-    ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.cicd/odoo
-    ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+    ODOO_CONFIG_FILE: ${{ github.workspace }}/.github/odoo/etc/odoo.conf
+    ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.github/odoo
+    ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.github/odoo/docker-compose.yml
     ODOO_TEST_DATABASE_NAME: odoo_test
     ODOO_LOG_FILE_CONTAINER: /var/log/odoo/odoo.log
-    ODOO_LOG_FILE_HOST: ${{ github.workspace }}/.cicd/odoo/logs/odoo.log
+    ODOO_LOG_FILE_HOST: ${{ github.workspace }}/.github/odoo/logs/odoo.log
 
-    CICD_ODOO_OPTIONS: ${{ github.workspace }}/.cicd/conf/odoo.json
-    CICD_SCRIPTS_PATH: ${{ github.workspace }}/.cicd/scripts
-    CICD_UTILS_SCRIPTS_PATH: ${{ github.workspace }}/.cicd/scripts/utils.sh
+    CICD_ODOO_OPTIONS: ${{ github.workspace }}/.github/conf/odoo.json
+    CICD_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts
+    CICD_UTILS_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts/utils.sh
 
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_URL: ${{ github.event.pull_request.html_url }}
