@@ -140,6 +140,17 @@ jobs:
                   username: ${{ env.DOCKERHUB_USERNAME }}
                   password: ${{ env.DOCKERHUB_TOKEN }}
 
+            - name: "Remove old backup script on server"
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  key: ${{ env.SERVER_PRIVATE_KEY }}
+                  port: ${{ env.SERVER_PORT }}
+                  command_timeout: 30m
+                  script: |
+                      rm -rf /tmp/server-backup.sh
+
             - name: "Upload backup script file to server"
               uses: appleboy/scp-action@v0.1.4
               with:
