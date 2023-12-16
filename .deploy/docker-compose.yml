@@ -19,7 +19,7 @@ services:
         secrets:
             - postgres_password
 
-    odoo17:
+    odoo:
         image: xmars/xmars4:odoo-cicd-github-action
         depends_on:
             - db
