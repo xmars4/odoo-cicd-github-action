@@ -147,6 +147,7 @@ jobs:
                   username: ${{ env.SERVER_USER }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
+                  overwrite: true
                   source: ${{ env.CICD_SCRIPTS_PATH }}/server-backup.sh
                   target: "/tmp"
 
