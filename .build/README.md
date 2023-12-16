@@ -32,8 +32,6 @@ Install docker and docker compose
 
 4. Replace *$image_tag* value to below file:
 
-    - [../.github/workflows/odoo-cicd-actions.yml](../.github/workflows/odoo-cicd-actions.yml#L8)
     - [../.deploy/docker-compose.yml](../.deploy/docker-compose.yml#L21)
-    - [../.cicd/odoo/docker-compose.yml](../.cicd/odoo/docker-compose.yml#L16)
 
 5. Commit change to Github

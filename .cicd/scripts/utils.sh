@@ -134,9 +134,9 @@ function docker_odoo_exec {
     docker exec $odoo_container_id sh -c "$@"
 }
 
-function update_odoo_image_tag_to_docker_compose {
-    sed -i "s/<db_image_tag>/$DB_IMAGE_TAG/g" $ODOO_DOCKER_COMPOSE_FILE
-    sed -i "s/<odoo_image_tag>/$ODOO_IMAGE_TAG/g" $ODOO_DOCKER_COMPOSE_FILE
+function update_services_tag_docker_compose {
+    sed -i "s|<db_image_tag>|$DB_IMAGE_TAG|g" $ODOO_DOCKER_COMPOSE_FILE
+    sed -i "s|<odoo_image_tag>|$ODOO_IMAGE_TAG|g" $ODOO_DOCKER_COMPOSE_FILE
 }
 
 function analyze_log_file {
