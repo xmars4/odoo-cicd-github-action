@@ -141,15 +141,13 @@ jobs:
                   password: ${{ env.DOCKERHUB_TOKEN }}
 
             - name: "Upload backup script file to server"
-              uses: appleboy/scp-action@v0.1.4
+              uses: garygrossgarten/github-action-scp@release
               with:
+                  local: ${{ env.CICD_SCRIPTS_PATH }}/server-backup.sh
+                  remote: /tmp/odoo/cicd/backup.sh
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  key: ${{ env.SERVER_PRIVATE_KEY }}
-                  port: ${{ env.SERVER_PORT }}
-                  rm: true
-                  source: ${{ env.CICD_SCRIPTS_PATH }}/server-backup.sh
-                  target: "/tmp"
+                  privateKey: ${{ env.SERVER_PRIVATE_KEY }}
 
             - name: "Backup Odoo on server"
               uses: appleboy/ssh-action@v1.0.0
@@ -160,7 +158,7 @@ jobs:
                   port: ${{ env.SERVER_PORT }}
                   command_timeout: 30m
                   script: |
-                      bash ${{env.SERVER_BACKUP_SCRIPT}} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}"
+                      bash /tmp/odoo/cicd/backup.sh "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}"
 
             - name: "Download backup file"
               uses: nicklasfrahm/scp-action@main
