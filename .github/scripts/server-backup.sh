@@ -13,9 +13,11 @@ main() {
 }
 
 populate_variables() {
-    declare -g docker_compose_path="$1"                            # path to folder contains docker-compose.yml file - on host machine
-    declare -g db_name="$2"                                        # supplied by jenkins pipeline - config manually in pipeline
-    declare -g odoo_image_tag="$3"                                 # odoo image tag - declared in docker compose file
+    declare -g docker_compose_path="$1" # path to folder contains docker-compose.yml file - on host machine
+    declare -g db_name="$2"             # supplied by jenkins pipeline - config manually in pipeline
+    declare -g db_password="$3"
+    declare -g odoo_image_tag="$4" # odoo image tag - declared in docker compose file
+
     declare -g config_file=/etc/odoo/odoo.conf                     # path inside the Odoo container
     declare -g backup_folder=/tmp/odoo/backup                      # backup folder path of container and main host
     declare -g latest_backup_file_path=$backup_folder/.odoo.tar.gz # contains path to current file
@@ -25,7 +27,7 @@ populate_variables() {
     declare -g db_port=$(get_config_value "db_port")
     declare -g db_port=${db_port:-'5432'}
     declare -g db_user=$(get_config_value "db_user")
-    # declare -g db_password=$(get_config_value "db_password")
+
     declare -g data_dir=$(get_config_value "data_dir")
     declare -g data_dir=${data_dir:-'/var/lib/odoo'}
     declare -g DATE_FORMAT="%Y-%m-%d_%H-%M-%S"
@@ -140,8 +142,8 @@ create_sub_backup_folder() {
 create_sql_backup() {
     sub_backup_folder=$1
     sql_file_path="${sub_backup_folder}/dump.sql"
-    # pgpass_path="~/.pgpass"
-    # execute_command_inside_odoo_container "touch $pgpass_path ; echo $db_host:$db_port:\"$db_name\":$db_user:$db_password > $pgpass_path ; chmod 0600 $pgpass_path"
+    pgpass_path="~/.pgpass"
+    execute_command_inside_odoo_container "touch $pgpass_path ; echo $db_host:$db_port:\"$db_name\":$db_user:$db_password > $pgpass_path ; chmod 0600 $pgpass_path"
     execute_command_inside_odoo_container "pg_dump -h \"$db_host\" -U $db_user --no-owner --file \"$sql_file_path\" \"$db_name\""
 }
 
