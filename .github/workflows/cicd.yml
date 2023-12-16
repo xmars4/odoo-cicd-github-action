@@ -1,10 +1,10 @@
 name: ci/cd
 
 #fixme
-on: push
-# on:
-#     pull_request:
-#         types: [reopened, opened, synchronize, ready_for_review, closed]
+# on: push
+on:
+    pull_request:
+        types: [reopened, opened, synchronize, ready_for_review, closed]
 
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
@@ -42,87 +42,87 @@ env:
     SERVER_ODOO_DB_NAME: ${{ vars.SERVER_ODOO_DB_NAME }}
 
 jobs:
-    # pylint-test:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+    pylint-test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    #         - name: Login to Docker Hub
-    #           uses: docker/login-action@v3
-    #           with:
-    #               username: ${{ env.DOCKERHUB_USERNAME }}
-    #               password: ${{ env.DOCKERHUB_TOKEN }}
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ env.DOCKERHUB_USERNAME }}
+                  password: ${{ env.DOCKERHUB_TOKEN }}
 
-    #         - name: Prepare data
-    #           run: |
-    #               bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
-    #               bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-    #               up-flags: "--quiet-pull"
-    #               down-flags: "--volumes"
+            - name: Prepare data
+              run: |
+                  bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
+                  bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
+                  up-flags: "--quiet-pull"
+                  down-flags: "--volumes"
 
-    #         - name: Run Pylint Test cases
-    #           run: |
-    #               bash $CICD_SCRIPTS_PATH/run-pylint-test.sh
+            - name: Run Pylint Test cases
+              run: |
+                  bash $CICD_SCRIPTS_PATH/run-pylint-test.sh
 
-    # unit-test-at-install:
-    #     runs-on: ubuntu-latest
-    #     needs: [pylint-test]
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+    unit-test-at-install:
+        runs-on: ubuntu-latest
+        needs: [pylint-test]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    #         - name: Login to Docker Hub
-    #           uses: docker/login-action@v3
-    #           with:
-    #               username: ${{ env.DOCKERHUB_USERNAME }}
-    #               password: ${{ env.DOCKERHUB_TOKEN }}
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ env.DOCKERHUB_USERNAME }}
+                  password: ${{ env.DOCKERHUB_TOKEN }}
 
-    #         - name: Prepare data
-    #           run: |
-    #               bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-    #               up-flags: "--quiet-pull"
-    #               down-flags: "--volumes"
-    #         - name: Run Unit test cases
-    #           run: |
-    #               bash $CICD_SCRIPTS_PATH/run-unit-test.sh "At Install"
+            - name: Prepare data
+              run: |
+                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
+                  up-flags: "--quiet-pull"
+                  down-flags: "--volumes"
+            - name: Run Unit test cases
+              run: |
+                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "At Install"
 
-    # unit-test-post-install:
-    #     runs-on: ubuntu-latest
-    #     needs: [unit-test-at-install]
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+    unit-test-post-install:
+        runs-on: ubuntu-latest
+        needs: [unit-test-at-install]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    #         - name: Login to Docker Hub
-    #           uses: docker/login-action@v3
-    #           with:
-    #               username: ${{ env.DOCKERHUB_USERNAME }}
-    #               password: ${{ env.DOCKERHUB_TOKEN }}
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ env.DOCKERHUB_USERNAME }}
+                  password: ${{ env.DOCKERHUB_TOKEN }}
 
-    #         - name: Prepare data
-    #           run: |
-    #               bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
-    #         - uses: isbang/compose-action@v1.5.1
-    #           with:
-    #               compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-    #               up-flags: "--quiet-pull"
-    #               down-flags: "--volumes"
+            - name: Prepare data
+              run: |
+                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
+            - uses: isbang/compose-action@v1.5.1
+              with:
+                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
+                  up-flags: "--quiet-pull"
+                  down-flags: "--volumes"
 
-    #         - name: Run Unit test cases
-    #           run: |
-    #               bash $CICD_SCRIPTS_PATH/run-unit-test.sh "Post Install"
+            - name: Run Unit test cases
+              run: |
+                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "Post Install"
 
     integration-test:
         runs-on: ubuntu-latest
-        # if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        # needs: [unit-test-post-install]
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [unit-test-post-install]
         env:
             SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
@@ -183,45 +183,45 @@ jobs:
               run: |
                   bash $CICD_SCRIPTS_PATH/run-integration-test.sh ${{env.LOCAL_BACKUP_FILE_PATH}}
 
-    # deploy-server:
-    #     runs-on: ubuntu-latest
-    #     if: github.event.action == 'closed' && github.event.pull_request.merged == true
-    #     needs: [integration-test]
-    #     env:
-    #         SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v4
+    deploy-server:
+        runs-on: ubuntu-latest
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        needs: [integration-test]
+        env:
+            SERVER_DEPLOY_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-deploy.sh
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    #         - name: "Upload deploy script file to server"
-    #           uses: appleboy/scp-action@v0.1.4
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               key: ${{ env.SERVER_PRIVATE_KEY }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               source: ${{ env.CICD_SCRIPTS_PATH }}/server-deploy.sh
-    #               target: "/tmp"
+            - name: "Upload deploy script file to server"
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  key: ${{ env.SERVER_PRIVATE_KEY }}
+                  port: ${{ env.SERVER_PORT }}
+                  source: ${{ env.CICD_SCRIPTS_PATH }}/server-deploy.sh
+                  target: "/tmp"
 
-    #         - name: "Deploy to server"
-    #           uses: appleboy/ssh-action@v1.0.0
-    #           env:
-    #               SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
-    #               SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
-    #               SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
-    #               GITHUB_STEP_SUMMARY: ${{ env.GITHUB_STEP_SUMMARY }}
-    #           with:
-    #               host: ${{ env.SERVER_HOST }}
-    #               username: ${{ env.SERVER_USER }}
-    #               key: ${{ env.SERVER_PRIVATE_KEY }}
-    #               port: ${{ env.SERVER_PORT }}
-    #               script: |
-    #                   bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}" "${{ env.SERVER_ODOO_DB_NAME }}"
-    #         - name: The Deploy step has failed
-    #           if: ${{ failure() }}
-    #           run: |
-    #               bash ${{env.CICD_SCRIPTS_PATH}}/post-server-deploy.sh "failed"
-    #         - name: The Deploy step has successful
-    #           if: ${{ success() }}
-    #           run: |
-    #               bash ${{env.CICD_SCRIPTS_PATH}}/post-server-deploy.sh "success"
+            - name: "Deploy to server"
+              uses: appleboy/ssh-action@v1.0.0
+              env:
+                  SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
+                  SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
+                  SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
+                  GITHUB_STEP_SUMMARY: ${{ env.GITHUB_STEP_SUMMARY }}
+              with:
+                  host: ${{ env.SERVER_HOST }}
+                  username: ${{ env.SERVER_USER }}
+                  key: ${{ env.SERVER_PRIVATE_KEY }}
+                  port: ${{ env.SERVER_PORT }}
+                  script: |
+                      bash ${{env.SERVER_DEPLOY_SCRIPT}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}" "${{ env.SERVER_ODOO_DB_NAME }}"
+            - name: The Deploy step has failed
+              if: ${{ failure() }}
+              run: |
+                  bash ${{env.CICD_SCRIPTS_PATH}}/post-server-deploy.sh "failed"
+            - name: The Deploy step has successful
+              if: ${{ success() }}
+              run: |
+                  bash ${{env.CICD_SCRIPTS_PATH}}/post-server-deploy.sh "success"
