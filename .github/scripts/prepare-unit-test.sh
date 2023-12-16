@@ -54,6 +54,7 @@ function main {
     populate_variables "$@"
     set_list_addons
     update_config_file
+    update_services_tag_docker_compose
 }
 
 main "$@"

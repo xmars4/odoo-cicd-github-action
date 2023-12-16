@@ -8,6 +8,7 @@ function update_config_file {
 
 function main() {
     update_config_file
+    update_services_tag_docker_compose
 }
 
 main "$@"

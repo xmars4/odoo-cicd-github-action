@@ -6,16 +6,16 @@ on:
 
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
-    ODOO_CONFIG_FILE: ${{ github.workspace }}/.cicd/odoo/etc/odoo.conf
-    ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.cicd/odoo
-    ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.cicd/odoo/docker-compose.yml
+    ODOO_CONFIG_FILE: ${{ github.workspace }}/.github/odoo/etc/odoo.conf
+    ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.github/odoo
+    ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.github/odoo/docker-compose.yml
     ODOO_TEST_DATABASE_NAME: odoo_test
     ODOO_LOG_FILE_CONTAINER: /var/log/odoo/odoo.log
-    ODOO_LOG_FILE_HOST: ${{ github.workspace }}/.cicd/odoo/logs/odoo.log
+    ODOO_LOG_FILE_HOST: ${{ github.workspace }}/.github/odoo/logs/odoo.log
 
-    CICD_ODOO_OPTIONS: ${{ github.workspace }}/.cicd/conf/odoo.json
-    CICD_SCRIPTS_PATH: ${{ github.workspace }}/.cicd/scripts
-    CICD_UTILS_SCRIPTS_PATH: ${{ github.workspace }}/.cicd/scripts/utils.sh
+    CICD_ODOO_OPTIONS: ${{ github.workspace }}/.github/conf/odoo.json
+    CICD_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts
+    CICD_UTILS_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts/utils.sh
 
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_URL: ${{ github.event.pull_request.html_url }}
@@ -26,10 +26,10 @@ env:
     TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
     SERVER_PRIVATE_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
 
     ODOO_IMAGE_TAG: ${{ vars.ODOO_IMAGE_TAG }}
+    DB_IMAGE_TAG: ${{ vars.DB_IMAGE_TAG }}
 
     SERVER_HOST: ${{ vars.SERVER_HOST }}
     SERVER_USER: ${{ vars.SERVER_USER }}
@@ -140,7 +140,6 @@ jobs:
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  # password: ${{ env.SERVER_PASSWORD }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   source: ${{ env.CICD_SCRIPTS_PATH }}/server-backup.sh
@@ -151,7 +150,6 @@ jobs:
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  # password: ${{ env.SERVER_PASSWORD }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   command_timeout: 30m
@@ -165,7 +163,6 @@ jobs:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
-                  # insecure_password: ${{ env.SERVER_PASSWORD }}
                   insecure_ignore_fingerprint: true
                   action_timeout: 30m
                   source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
@@ -199,7 +196,6 @@ jobs:
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  # password: ${{ env.SERVER_PASSWORD }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   source: ${{ env.CICD_SCRIPTS_PATH }}/server-deploy.sh
@@ -215,7 +211,6 @@ jobs:
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  # password: ${{ env.SERVER_PASSWORD }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   script: |
