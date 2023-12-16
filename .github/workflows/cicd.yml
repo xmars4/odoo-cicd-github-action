@@ -124,7 +124,6 @@ jobs:
             SERVER_BACKUP_SCRIPT: /tmp/github/workspace/.cicd/scripts/server-backup.sh
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: /tmp/odoo.tar.gz
-            LOCAL_BACKUP_FILE: odoo.tar.gz
 
         steps:
             - name: Checkout
@@ -170,7 +169,7 @@ jobs:
                   insecure_ignore_fingerprint: true
                   action_timeout: 30m
                   source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-                  target: ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+                  target: ${{env.LOCAL_BACKUP_FILE_PATH}}
 
             - name: "Prepare data"
               run: |
@@ -183,7 +182,7 @@ jobs:
 
             - name: "Integration test"
               run: |
-                  bash $CICD_SCRIPTS_PATH/run-integration-test.sh ${{ github.workspace }}/${{env.LOCAL_BACKUP_FILE}}
+                  bash $CICD_SCRIPTS_PATH/run-integration-test.sh ${{env.LOCAL_BACKUP_FILE_PATH}}
 
     deploy-server:
         runs-on: ubuntu-latest
