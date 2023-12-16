@@ -26,7 +26,6 @@ env:
     TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
     SERVER_PRIVATE_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
 
     ODOO_IMAGE_TAG: ${{ vars.ODOO_IMAGE_TAG }}
@@ -141,7 +140,6 @@ jobs:
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  # password: ${{ env.SERVER_PASSWORD }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   source: ${{ env.CICD_SCRIPTS_PATH }}/server-backup.sh
@@ -152,7 +150,6 @@ jobs:
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  # password: ${{ env.SERVER_PASSWORD }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   command_timeout: 30m
@@ -166,7 +163,6 @@ jobs:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
-                  # insecure_password: ${{ env.SERVER_PASSWORD }}
                   insecure_ignore_fingerprint: true
                   action_timeout: 30m
                   source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
@@ -200,7 +196,6 @@ jobs:
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  # password: ${{ env.SERVER_PASSWORD }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   source: ${{ env.CICD_SCRIPTS_PATH }}/server-deploy.sh
@@ -216,7 +211,6 @@ jobs:
               with:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
-                  # password: ${{ env.SERVER_PASSWORD }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
                   port: ${{ env.SERVER_PORT }}
                   script: |
