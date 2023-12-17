@@ -40,14 +40,10 @@ function update_config_file {
     else
         test_tags="${tagged_custom_addons}"
     fi
-    if [[ -z $without_demo_addons ]]; then
-        echo -en " --init ${custom_addons} \
+
+    echo -en " --init ${custom_addons} \
+        --without-demo all \
         --test-tags $test_tags\n" >>$ODOO_CONFIG_FILE
-    else
-        echo -en " --init ${custom_addons} \
-        --without-demo $without_demo_addons \
-        --test-tags $test_tags\n" >>$ODOO_CONFIG_FILE
-    fi
 }
 
 function main {
