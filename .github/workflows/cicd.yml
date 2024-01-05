@@ -44,7 +44,7 @@ jobs:
             SERVER_BACKUP_FOLDER: /tmp/odoo/backup/${{github.repository_id}}
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/${{github.repository_id}}/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
-            SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/backup.sh
+            SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/backup.sh
             GITHUB_RUN_ATTEMPT: ${{github.run_attempt}}
 
         steps:
@@ -106,7 +106,7 @@ jobs:
         runs-on: ubuntu-latest
         needs: [integration-test]
         env:
-            SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/deploy.sh
+            SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/deploy.sh
         steps:
             - name: Checkout
               uses: actions/checkout@v4
