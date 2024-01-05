@@ -1,7 +1,6 @@
 name: ci/cd
 on:
-    pull_request:
-        types: [reopened, opened, synchronize, ready_for_review, closed]
+    push:
 
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
@@ -39,92 +38,13 @@ env:
     SERVER_ODOO_DB_NAME: ${{ vars.SERVER_ODOO_DB_NAME }}
 
 jobs:
-    pylint-test:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: ${{ env.DOCKERHUB_USERNAME }}
-                  password: ${{ env.DOCKERHUB_TOKEN }}
-
-            - name: Prepare data
-              run: |
-                  bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
-                  bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-
-            - name: Run Pylint Test cases
-              run: |
-                  bash $CICD_SCRIPTS_PATH/run-pylint-test.sh
-
-    unit-test-at-install:
-        runs-on: ubuntu-latest
-        needs: [pylint-test]
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: ${{ env.DOCKERHUB_USERNAME }}
-                  password: ${{ env.DOCKERHUB_TOKEN }}
-
-            - name: Prepare data
-              run: |
-                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-            - name: Run Unit test cases
-              run: |
-                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "At Install"
-
-    unit-test-post-install:
-        runs-on: ubuntu-latest
-        needs: [unit-test-at-install]
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: ${{ env.DOCKERHUB_USERNAME }}
-                  password: ${{ env.DOCKERHUB_TOKEN }}
-
-            - name: Prepare data
-              run: |
-                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-
-            - name: Run Unit test cases
-              run: |
-                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "Post Install"
-
     integration-test:
         runs-on: ubuntu-latest
-        if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        needs: [unit-test-post-install]
         env:
             SERVER_BACKUP_FOLDER: /tmp/odoo/backup/${{github.repository_id}}
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/${{github.repository_id}}/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
-            SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/backup.sh
+            SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/backup.sh
             GITHUB_RUN_ATTEMPT: ${{github.run_attempt}}
 
         steps:
@@ -155,7 +75,7 @@ jobs:
                   port: ${{ env.SERVER_PORT }}
                   command_timeout: 30m
                   script: |
-                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }}} "${{ env.SERVER_BACKUP_FOLDER }}"
+                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }} "${{ env.SERVER_BACKUP_FOLDER }}"
 
             - name: "Download backup file"
               uses: nicklasfrahm/scp-action@main
@@ -184,10 +104,9 @@ jobs:
 
     deploy-server:
         runs-on: ubuntu-latest
-        if: github.event.action == 'closed' && github.event.pull_request.merged == true
         needs: [integration-test]
         env:
-            SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/deploy.sh
+            SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/deploy.sh
         steps:
             - name: Checkout
               uses: actions/checkout@v4
