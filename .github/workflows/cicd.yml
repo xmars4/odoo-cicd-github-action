@@ -123,7 +123,8 @@ jobs:
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
         needs: [unit-test-post-install]
         env:
-            SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
+            SERVER_BACKUP_FOLDER: /tmp/odoo/backup/${{github.repository_id}}
+            SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/${{github.repository_id}}/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
             SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/backup.sh
             GITHUB_RUN_ATTEMPT: ${{github.run_attempt}}
@@ -156,7 +157,7 @@ jobs:
                   port: ${{ env.SERVER_PORT }}
                   command_timeout: 30m
                   script: |
-                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }}}
+                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }}} "${{ env.SERVER_BACKUP_FOLDER }}"
 
             - name: "Download backup file"
               uses: nicklasfrahm/scp-action@main

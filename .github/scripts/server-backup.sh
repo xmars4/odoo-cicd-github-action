@@ -22,10 +22,10 @@ populate_variables() {
     # the reason: a job failed because we are testing on an older db, so we should get the latest db when retry testing
     # there are many other reason but we will cover it later
     declare -g job_attempt_number="$5"
+    declare -g backup_folder="$6" # the (same) backup folder path on the host and inside the Odoo container
 
     declare -g config_file=/etc/odoo/odoo.conf                     # path inside the Odoo container
-    declare -g backup_folder=/tmp/odoo/backup                      # backup folder path of container and main host
-    declare -g latest_backup_file_path=$backup_folder/.odoo.tar.gz # contains path to current file
+    declare -g latest_backup_file_path=$backup_folder/.odoo.tar.gz # the path to backup file on the host
 
     declare -g db_host=$(get_config_value "db_host")
     declare -g db_host=${db_host:-'db'}
