@@ -124,7 +124,7 @@ jobs:
             SERVER_BACKUP_FOLDER: /tmp/odoo/backup/${{github.repository_id}}
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/${{github.repository_id}}/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
-            SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/backup.sh
+            SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/backup.sh
             GITHUB_RUN_ATTEMPT: ${{github.run_attempt}}
 
         steps:
@@ -155,7 +155,7 @@ jobs:
                   port: ${{ env.SERVER_PORT }}
                   command_timeout: 30m
                   script: |
-                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }}} "${{ env.SERVER_BACKUP_FOLDER }}"
+                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }} "${{ env.SERVER_BACKUP_FOLDER }}"
 
             - name: "Download backup file"
               uses: nicklasfrahm/scp-action@main
@@ -187,7 +187,7 @@ jobs:
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
         needs: [integration-test]
         env:
-            SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/deploy.sh
+            SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/deploy.sh
         steps:
             - name: Checkout
               uses: actions/checkout@v4
