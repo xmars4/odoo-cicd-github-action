@@ -18,6 +18,11 @@ populate_variables() {
     declare -g db_password="$3"
     declare -g odoo_image_tag="$4" # odoo image tag - declared in docker compose file
 
+    # this number will greater than 1 for re-run jobs, this happend when a job failed
+    # the reason: a job failed because we are testing on an older db, so we should get the latest db when retry testing
+    # there are many other reason but we will cover it later
+    declare -g job_attempt_number="$5"
+
     declare -g config_file=/etc/odoo/odoo.conf                     # path inside the Odoo container
     declare -g backup_folder=/tmp/odoo/backup                      # backup folder path of container and main host
     declare -g latest_backup_file_path=$backup_folder/.odoo.tar.gz # contains path to current file
@@ -73,10 +78,14 @@ execute_command_inside_odoo_container() {
 }
 
 should_we_generate_new_backup() {
+    if [[ $job_attempt_number -gt 1 ]]; then
+        echo "true"
+        return 0
+    fi
     latest_backup_file_creation_timestamp=$1
     current_timestamp=$(execute_command_inside_odoo_container "date -u +%s")
     different=$((current_timestamp - latest_backup_file_creation_timestamp))
-    # we should get a new backup file every 1 hour
+    # we should get a new backup file when the latest backup file is older than 1 hour
     if [[ $different -gt '3600' ]]; then
         echo "true"
     else

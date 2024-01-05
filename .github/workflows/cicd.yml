@@ -1,7 +1,9 @@
 name: ci/cd
 on:
-    pull_request:
-        types: [reopened, opened, synchronize, ready_for_review, closed]
+    # fixme
+    push:
+    # pull_request:
+    #     types: [reopened, opened, synchronize, ready_for_review, closed]
 
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
@@ -124,6 +126,7 @@ jobs:
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/.odoo.tar.gz
             LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
             SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/backup.sh
+            GITHUB_RUN_ATTEMPT: ${{github.run_attempt}}
 
         steps:
             - name: Checkout
@@ -153,7 +156,7 @@ jobs:
                   port: ${{ env.SERVER_PORT }}
                   command_timeout: 30m
                   script: |
-                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}"
+                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }}}
 
             - name: "Download backup file"
               uses: nicklasfrahm/scp-action@main
