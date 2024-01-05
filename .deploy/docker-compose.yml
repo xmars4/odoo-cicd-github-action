@@ -1,4 +1,5 @@
 version: "3.8"
+name: xmars4:odoo-cicd-github-action
 services:
     db:
         image: postgres:16
