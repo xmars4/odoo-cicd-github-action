@@ -21,7 +21,6 @@ jobs:
               uses: actions/checkout@v4
               with:
                   repository: ${{ env.REPO }}
-                  token: ${{ env.PAT }}
                   ssh-key: ${{ env.SSH_KEY }}
                   path: ${{ env.LOCAL_PATH }}
                   ref: ${{ env.MAIN_BRANCH }}
