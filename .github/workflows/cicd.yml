@@ -1,9 +1,8 @@
 name: ci/cd
 on:
-    # pull_request:
-    #     types: [reopened, opened, synchronize, ready_for_review, closed]
-    push:
-        branches: [dev-extrinsic]
+    pull_request:
+        branches: [extrinsic]
+        types: [reopened, opened, synchronize, ready_for_review, closed]
 
 env:
     # cicd executor repo info
@@ -54,7 +53,7 @@ jobs:
                   fetch-depth: 1
             - name: Update file for commit
               run: |
-                  sed -i '1s/^/${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
+                  sed -i '1s/^/${{github.repository}}_PR#${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
             - name: Push commit to trigger CICD - deploy workflow
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
