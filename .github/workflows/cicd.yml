@@ -91,7 +91,7 @@ jobs:
 
     unit-test-post-install:
         runs-on: ubuntu-latest
-        needs: [unit-test-at-install]
+        needs: [pylint-test]
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -118,7 +118,7 @@ jobs:
     integration-test:
         runs-on: ubuntu-latest
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        needs: [unit-test-post-install]
+        needs: [unit-test-at-install, unit-test-post-install]
         env:
             SERVER_BACKUP_FOLDER: /tmp/odoo/backup/${{github.repository_id}}
             SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/${{github.repository_id}}/.odoo.tar.gz
@@ -183,7 +183,6 @@ jobs:
 
     deploy-server:
         runs-on: ubuntu-latest
-        if: github.event.action == 'closed' && github.event.pull_request.merged == true
         needs: [integration-test]
         env:
             SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/deploy.sh
