@@ -1,223 +1,55 @@
 name: ci/cd
 on:
-    pull_request:
-        types: [reopened, opened, synchronize, ready_for_review, closed]
+    # pull_request:
+    #     types: [reopened, opened, synchronize, ready_for_review, closed]
+    push:
+        branches: [dev-extrinsic]
+
 env:
-    ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
-    ODOO_CONFIG_FILE: ${{ github.workspace }}/.github/odoo/etc/odoo.conf
-    ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.github/odoo
-    ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.github/odoo/docker-compose.yml
-    ODOO_TEST_DATABASE_NAME: odoo_test
-    ODOO_LOG_FILE_CONTAINER: /var/log/odoo/odoo.log
-    ODOO_LOG_FILE_HOST: ${{ github.workspace }}/.github/odoo/logs/odoo.log
-
-    CICD_ODOO_OPTIONS: ${{ github.workspace }}/.github/conf/odoo.json
-    CICD_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts
-    CICD_UTILS_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts/utils.sh
-
-    PR_NUMBER: ${{ github.event.pull_request.number }}
-    PR_URL: ${{ github.event.pull_request.html_url }}
-    PR_EVENT_NAME: ${{ github.event.action }}
-    PR_WAS_MERGED: ${{ github.event.pull_request.merged }}
-
-    TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
-    TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-    DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-    DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    SERVER_PRIVATE_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
-    SERVER_DB_PASSWORD: ${{ secrets.SERVER_DB_PASSWORD }}
-
-    ODOO_IMAGE_TAG: ${{ vars.ODOO_IMAGE_TAG }}
-    DB_IMAGE_TAG: ${{ vars.DB_IMAGE_TAG }}
-
-    SERVER_HOST: ${{ vars.SERVER_HOST }}
-    SERVER_USER: ${{ vars.SERVER_USER }}
-    SERVER_PORT: ${{ vars.SERVER_PORT }}
-    SERVER_DEPLOY_PATH: ${{ vars.SERVER_DEPLOY_PATH }}
-    SERVER_ODOO_URL: ${{ vars.SERVER_ODOO_URL }}
-    SERVER_ODOO_DB_NAME: ${{ vars.SERVER_ODOO_DB_NAME }}
+    # cicd executor repo info
+    REPO: "xmars4/odoo-cicd-executor"
+    LOCAL_PATH: ${{ github.workspace }}
+    MAIN_BRANCH: "production"
+    PRIVATE_BRANCH: ${{ github.repository }}
+    PAT: ${{ secrets.PAT }}
 
 jobs:
-    pylint-test:
+    test:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout
+            - name: Checkout Odoo CICD executor
               uses: actions/checkout@v4
-
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
               with:
-                  username: ${{ env.DOCKERHUB_USERNAME }}
-                  password: ${{ env.DOCKERHUB_TOKEN }}
-
-            - name: Prepare data
+                  repository: ${{ env.REPO }}
+                  token: ${{ env.PAT }}
+                  path: ${{ env.LOCAL_PATH }}
+                  ref: ${{ env.MAIN_BRANCH }}
+                  fetch-depth: 1
+            - name: Update file for commit
               run: |
-                  bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
-                  bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
-            - uses: isbang/compose-action@v1.5.1
+                  sed -i '1s/^/${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
+            - name: Push commit to trigger CICD - test workflow
+              uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-
-            - name: Run Pylint Test cases
-              run: |
-                  bash $CICD_SCRIPTS_PATH/run-pylint-test.sh
-
-    unit-test-at-install:
-        runs-on: ubuntu-latest
-        needs: [pylint-test]
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: ${{ env.DOCKERHUB_USERNAME }}
-                  password: ${{ env.DOCKERHUB_TOKEN }}
-
-            - name: Prepare data
-              run: |
-                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-            - name: Run Unit test cases
-              run: |
-                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "At Install"
-
-    unit-test-post-install:
-        runs-on: ubuntu-latest
-        needs: [pylint-test]
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: ${{ env.DOCKERHUB_USERNAME }}
-                  password: ${{ env.DOCKERHUB_TOKEN }}
-
-            - name: Prepare data
-              run: |
-                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-
-            - name: Run Unit test cases
-              run: |
-                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "Post Install"
-
-    integration-test:
+                  branch: ${{ github.repository }}
+                  repository: ${{ github.workspace }}
+    deploy:
         runs-on: ubuntu-latest
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        needs: [unit-test-at-install, unit-test-post-install]
-        env:
-            SERVER_BACKUP_FOLDER: /tmp/odoo/backup/${{github.repository_id}}
-            SERVER_LATEST_BACKUP_FILE_PATH: /tmp/odoo/backup/${{github.repository_id}}/.odoo.tar.gz
-            LOCAL_BACKUP_FILE_PATH: ${{github.workspace}}/odoo.tar.gz
-            SERVER_BACKUP_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/backup.sh
-            GITHUB_RUN_ATTEMPT: ${{github.run_attempt}}
-
         steps:
-            - name: Checkout
+            - name: Checkout Odoo CICD executor
               uses: actions/checkout@v4
-
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
               with:
-                  username: ${{ env.DOCKERHUB_USERNAME }}
-                  password: ${{ env.DOCKERHUB_TOKEN }}
-
-            - name: "Upload backup script file to server"
-              uses: garygrossgarten/github-action-scp@release
-              with:
-                  local: ${{ env.CICD_SCRIPTS_PATH }}/server-backup.sh
-                  remote: ${{ env.SERVER_BACKUP_SCRIPT_PATH }}
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  privateKey: ${{ env.SERVER_PRIVATE_KEY }}
-
-            - name: "Backup Odoo on server"
-              uses: appleboy/ssh-action@v1.0.0
-              with:
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  key: ${{ env.SERVER_PRIVATE_KEY }}
-                  port: ${{ env.SERVER_PORT }}
-                  command_timeout: 30m
-                  script: |
-                      bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }} "${{ env.SERVER_BACKUP_FOLDER }}"
-
-            - name: "Download backup file"
-              uses: nicklasfrahm/scp-action@main
-              with:
-                  direction: download
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  key: ${{ env.SERVER_PRIVATE_KEY }}
-                  insecure_ignore_fingerprint: true
-                  action_timeout: 30m
-                  source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-                  target: ${{env.LOCAL_BACKUP_FILE_PATH}}
-
-            - name: "Prepare data"
+                  repository: ${{ env.EXECUTOR_REPO }}
+                  token: ${{ env.ACCESS_TOKEN }}
+                  path: ${{ env.EXECUTOR_LOCAL_PATH }}
+                  ref: ${{ env.MAIN_BRANCH }}
+                  fetch-depth: 1
+            - name: Update file for commit
               run: |
-                  bash $CICD_SCRIPTS_PATH/prepare-integration-test.sh
-            - uses: isbang/compose-action@v1.5.1
+                  sed -i '1s/^/${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
+            - name: Push commit to trigger CICD - deploy workflow
+              uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-
-            - name: "Integration test"
-              run: |
-                  bash $CICD_SCRIPTS_PATH/run-integration-test.sh ${{env.LOCAL_BACKUP_FILE_PATH}}
-
-    deploy-server:
-        runs-on: ubuntu-latest
-        needs: [integration-test]
-        env:
-            SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/deploy.sh
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: "Upload deploy script file to server"
-              uses: garygrossgarten/github-action-scp@release
-              with:
-                  local: ${{ env.CICD_SCRIPTS_PATH }}/server-deploy.sh
-                  remote: ${{ env.SERVER_DEPLOY_SCRIPT_PATH }}
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  privateKey: ${{ env.SERVER_PRIVATE_KEY }}
-
-            - name: "Deploy to server"
-              uses: appleboy/ssh-action@v1.0.0
-              env:
-                  SERVER_CUSTOM_ADDONS_PATH: ${{env.SERVER_DEPLOY_PATH}}/..
-                  SERVER_CONFIG_FILE: ${{env.SERVER_DEPLOY_PATH}}/etc/odoo.conf
-                  SERVER_DOCKER_COMPOSE_PATH: ${{env.SERVER_DEPLOY_PATH}}
-                  GITHUB_STEP_SUMMARY: ${{ env.GITHUB_STEP_SUMMARY }}
-              with:
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  key: ${{ env.SERVER_PRIVATE_KEY }}
-                  port: ${{ env.SERVER_PORT }}
-                  script: |
-                      bash ${{env.SERVER_DEPLOY_SCRIPT_PATH}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}" "${{ env.SERVER_ODOO_DB_NAME }}"
-            - name: The Deploy step has failed
-              if: ${{ failure() }}
-              run: |
-                  bash ${{env.CICD_SCRIPTS_PATH}}/post-server-deploy.sh "failed"
-            - name: The Deploy step has successful
-              if: ${{ success() }}
-              run: |
-                  bash ${{env.CICD_SCRIPTS_PATH}}/post-server-deploy.sh "success"
+                  branch: ${{ github.repository }}
+                  repository: ${{ github.workspace }}
