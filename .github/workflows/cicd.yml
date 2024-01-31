@@ -24,11 +24,12 @@ jobs:
                   path: ${{ env.LOCAL_PATH }}
                   ref: ${{ env.PRIVATE_BRANCH }}
                   fetch-depth: 1
+
             - name: Update file for commit
               run: |
                   sed -i '1s/^/${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
-                  sed -i '1s/^/${{ github.sha }}\n/' ${{github.workspace}}/.github/trigger-commit.txt
-            - name: Push commit to trigger CICD - test workflow
+
+            - name: Push commit to trigger CICD - Test workflow
               uses: cpina/github-action-push-to-another-repository@main
               env:
                   SSH_DEPLOY_KEY: ${{ env.SSH_KEY }}
@@ -36,8 +37,8 @@ jobs:
                   source-directory: ./
                   destination-github-username: "xmars4"
                   destination-repository-name: "odoo-cicd-executor"
-                  user-email:
-                  commit-message: See from $GITHUB_REF
+                  user-email: "truong@vdx.vn"
+                  commit-message: test
                   target-branch: ${{ env.PRIVATE_BRANCH }}
     deploy:
         runs-on: ubuntu-latest
@@ -51,11 +52,20 @@ jobs:
                   path: ${{ env.EXECUTOR_LOCAL_PATH }}
                   ref: ${{ env.MAIN_BRANCH }}
                   fetch-depth: 1
+
             - name: Update file for commit
               run: |
-                  sed -i '1s/^/${{github.repository}}_PR#${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
-            - name: Push commit to trigger CICD - deploy workflow
-              uses: stefanzweifel/git-auto-commit-action@v5
+                  sed -i '1s/^/${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
+                  sed -i '1s/^/${{ github.sha }}\n/' ${{github.workspace}}/.github/trigger-commit.txt
+
+            - name: Push commit to trigger CICD - Deploy workflow
+              uses: cpina/github-action-push-to-another-repository@main
+              env:
+                  SSH_DEPLOY_KEY: ${{ env.SSH_KEY }}
               with:
-                  branch: ${{ github.repository }}
-                  repository: ${{ github.workspace }}
+                  source-directory: ./
+                  destination-github-username: "xmars4"
+                  destination-repository-name: "odoo-cicd-executor"
+                  user-email: "truong@vdx.vn"
+                  commit-message: deploy
+                  target-branch: ${{ env.PRIVATE_BRANCH }}
