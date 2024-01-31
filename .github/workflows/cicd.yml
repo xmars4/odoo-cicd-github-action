@@ -28,6 +28,7 @@ jobs:
             - name: Update file for commit
               run: |
                   sed -i '1s/^/${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
+                  sed -i '1s/^/${{ github.sha }}\n/' ${{github.workspace}}/.github/trigger-commit.txt
             - name: Push commit to trigger CICD - test workflow
               uses: cpina/github-action-push-to-another-repository@main
               env:
