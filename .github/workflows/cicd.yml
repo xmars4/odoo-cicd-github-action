@@ -23,7 +23,7 @@ jobs:
                   repository: ${{ env.REPO }}
                   ssh-key: ${{ env.SSH_KEY }}
                   path: ${{ env.LOCAL_PATH }}
-                  ref: ${{ env.MAIN_BRANCH }}
+                  ref: ${{ env.PRIVATE_BRANCH }}
                   fetch-depth: 1
             - name: Update file for commit
               run: |
