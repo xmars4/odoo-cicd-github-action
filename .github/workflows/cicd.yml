@@ -33,7 +33,7 @@ jobs:
               env:
                   SSH_DEPLOY_KEY: ${{ env.SSH_KEY }}
               with:
-                  source-directory: ${{ env.REPO }}
+                  source-directory: ./
                   destination-github-username: "xmars4"
                   destination-repository-name: "odoo-cicd-executor"
                   user-email:
