@@ -1,6 +1,8 @@
 
 # ODOO + Github Action
 
+This repository is set up for self-triggering CI/CD.
+
 1. Build image
 
 - follow instruction in the file [.build/README.md](.build/README.md)
