@@ -11,7 +11,7 @@ env:
     LOCAL_PATH: ${{ github.workspace }}
     MAIN_BRANCH: "production"
     PRIVATE_BRANCH: ${{ github.repository }}
-    PAT: ${{ secrets.PAT }}
+    SSH_KEY: ${{ secrets.SSH_KEY }}
 
 jobs:
     test:
@@ -22,6 +22,7 @@ jobs:
               with:
                   repository: ${{ env.REPO }}
                   token: ${{ env.PAT }}
+                  ssh-key: ${{ env.SSH_KEY }}
                   path: ${{ env.LOCAL_PATH }}
                   ref: ${{ env.MAIN_BRANCH }}
                   fetch-depth: 1
@@ -29,10 +30,16 @@ jobs:
               run: |
                   sed -i '1s/^/${{github.event.pull_request.number}}\n/' ${{github.workspace}}/.github/trigger-commit.txt
             - name: Push commit to trigger CICD - test workflow
-              uses: stefanzweifel/git-auto-commit-action@v5
+              uses: cpina/github-action-push-to-another-repository@main
+              env:
+                  SSH_DEPLOY_KEY: ${{ env.SSH_KEY }}
               with:
-                  branch: ${{ github.repository }}
-                  repository: ${{ github.workspace }}
+                  source-directory: ${{ env.REPO }}
+                  destination-github-username: "xmars4"
+                  destination-repository-name: "odoo-cicd-executor"
+                  user-email:
+                  commit-message: See from $GITHUB_REF
+                  target-branch: ${{ env.PRIVATE_BRANCH }}
     deploy:
         runs-on: ubuntu-latest
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
