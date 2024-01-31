@@ -2,7 +2,6 @@ name: ci/cd
 on:
     pull_request:
         types: [reopened, opened, synchronize, ready_for_review, closed]
-
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
     ODOO_CONFIG_FILE: ${{ github.workspace }}/.github/odoo/etc/odoo.conf
