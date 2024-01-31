@@ -27,7 +27,8 @@ jobs:
 
             - name: Update file for commit
               run: |
-                  echo [PR #${{github.event.pull_request.number}}](${{github.event.pull_request.html_url}}) >> "${{github.workspace}}/.github/trigger-commit.txt"
+                  timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+                  echo [PR #${{github.event.pull_request.number}}](${{github.event.pull_request.html_url}}) $(date '+%Y-%m-%d %H:%M:%S') >> "${{github.workspace}}/.github/trigger-commit.txt"
 
             - name: Push commit to trigger CICD - Test workflow
               uses: cpina/github-action-push-to-another-repository@main
@@ -55,7 +56,7 @@ jobs:
 
             - name: Update file for commit
               run: |
-                  echo [PR #${{github.event.pull_request.number}}](${{github.event.pull_request.html_url}}) >> "${{github.workspace}}/.github/trigger-commit.txt"
+                  echo [PR #${{github.event.pull_request.number}}](${{github.event.pull_request.html_url}}) $(date '+%Y-%m-%d %H:%M:%S') >> "${{github.workspace}}/.github/trigger-commit.txt"
 
             - name: Push commit to trigger CICD - Deploy workflow
               uses: cpina/github-action-push-to-another-repository@main
