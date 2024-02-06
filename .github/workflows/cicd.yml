@@ -28,7 +28,7 @@ jobs:
             - name: Update file for commit
               run: |
                   timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-                  echo "[PR #${{github.event.pull_request.number}}](${{github.event.pull_request.html_url}}) $(date '+%Y-%m-%d %H:%M:%S')" >> "${{github.workspace}}/.github/trigger-commit.md"
+                  echo -e "[PR #${{github.event.pull_request.number}}_${timestamp}](${{github.event.pull_request.html_url}})\n" >> "${{github.workspace}}/.github/trigger-commit.md"
 
             - name: Push commit to trigger CICD - Test workflow
               uses: cpina/github-action-push-to-another-repository@main
