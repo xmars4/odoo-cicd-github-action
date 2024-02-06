@@ -9,7 +9,7 @@ env:
     REPO: "xmars4/odoo-cicd-executor"
     LOCAL_PATH: ${{ github.workspace }}
     MAIN_BRANCH: "production"
-    PRIVATE_BRANCH: ${{ github.repository }}
+    PRIVATE_BRANCH: ${{ github.repository }} # this branch matches the Odoo repo name
     SSH_KEY: ${{ secrets.SSH_KEY }}
 
 jobs:
