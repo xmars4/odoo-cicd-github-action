@@ -8,7 +8,7 @@ jobs:
     test:
         permissions:
             contents: write
-        uses: ./github/workflow/commit.yml
+        uses: ./github/workflows/commit.yml
         with:
             commit_message: test
         secrets: inherit
@@ -16,7 +16,7 @@ jobs:
     deploy:
         permissions:
             contents: write
-        uses: ./github/workflow/commit.yml
+        uses: ./github/workflows/commit.yml
         with:
             commit_message: deploy
         secrets: inherit
