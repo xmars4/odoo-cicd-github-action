@@ -30,6 +30,7 @@ jobs:
 
             - name: Update file for commit
               run: |
+                  sed -i 's@<private_repo_path>@${{ github.repository }}@g' "${{github.workspace}}/.github/workflows/private-cicd.yml"
                   trigger_commit_file="${{github.workspace}}/.github/trigger-commit.md"
                   timestamp=$(date '+%Y-%m-%d %H:%M:%S')
                   echo -e "[PR #${{github.event.pull_request.number}}_${timestamp}](${{github.event.pull_request.html_url}})\n" | cat - ${trigger_commit_file} > temp && mv temp ${trigger_commit_file}
