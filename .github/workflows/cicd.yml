@@ -6,6 +6,7 @@ on:
 
 jobs:
     test:
+        if: github.event.action != 'closed'
         permissions:
             contents: write
         uses: ./.github/workflows/commit.yml
@@ -14,6 +15,7 @@ jobs:
         secrets: inherit
 
     deploy:
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
         permissions:
             contents: write
         uses: ./.github/workflows/commit.yml
