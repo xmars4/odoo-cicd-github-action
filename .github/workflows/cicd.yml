@@ -29,7 +29,7 @@ jobs:
               run: |
                   trigger_commit_file="${{github.workspace}}/.github/trigger-commit.md"
                   timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-                  pr_detail=$([PR #${{github.event.pull_request.number}}_${timestamp}](${{github.event.pull_request.html_url}})\n)
+                  pr_detail=$("[PR #${{github.event.pull_request.number}}_${timestamp}](${{github.event.pull_request.html_url}})\n")
                   echo -e "${pr_detail}" | cat - ${trigger_commit_file} > temp && mv temp ${trigger_commit_file}
 
             - name: Push commit to trigger CICD - Test workflow
