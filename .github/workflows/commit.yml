@@ -22,12 +22,11 @@ jobs:
             - name: Checkout Odoo CICD executor
               uses: actions/checkout@v4
               with:
-                  repository: xmars4/odoo-cicd-executor
+                  repository: ${{ env.REPO }}
                   ssh-key: ${{ env.SSH_KEY }}
                   path: ${{ env.LOCAL_PATH }}
                   ref: ${{ env.PRIVATE_BRANCH }}
                   fetch-depth: 1
-                  ssh-strict: false
 
             - name: Update file for commit
               run: |
