@@ -27,6 +27,7 @@ jobs:
                   path: ${{ env.LOCAL_PATH }}
                   ref: ${{ env.PRIVATE_BRANCH }}
                   fetch-depth: 1
+                  ssh-strict: false
 
             - name: Update file for commit
               run: |
