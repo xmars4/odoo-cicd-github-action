@@ -9,7 +9,7 @@ on:
 env:
     # cicd executor repo info
     REPO: "xmars4/odoo-cicd-executor"
-    LOCAL_PATH: ${{ github.workspace }}/executor
+    LOCAL_PATH: ${{ github.workspace }}
     MAIN_BRANCH: "production"
     # this branch matches the Odoo repo name
     PRIVATE_BRANCH: ${{ github.repository }}
