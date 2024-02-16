@@ -5,7 +5,7 @@ on:
         types: [reopened, opened, synchronize, ready_for_review, closed]
 env:
     workflow_repo: xmars4/odoo-cicd-executor
-    workflow_file: manual_cicd.yml
+    workflow_file: private-cicd.yml
     repo_name: ${{ github.repository }}
     source_branch: ${{ github.event.pull_request.head.ref }}
     target_branch: ${{ github.event.pull_request.base.ref }}
