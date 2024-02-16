@@ -5,6 +5,12 @@ on:
         types: [reopened, opened, synchronize, ready_for_review, closed]
 
 jobs:
+    dispatch_workflow:
+        runs-on: ubuntu-latest
+        steps:
+            - run: gh workflow run manual_cicd.yml --repo xmars4/odoo-cicd-executor -f action=test -f source_branch=${{ github.event.pull_request.base.ref }} -f target_branch=${{github.event.pull_request.head.ref}}
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     test:
         if: github.event.action != 'closed'
         permissions:
