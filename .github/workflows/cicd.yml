@@ -12,7 +12,7 @@ jobs:
         steps:
             - run: gh workflow run manual_cicd.yml --repo xmars4/odoo-cicd-executor -f action=test -f source_branch=${{ github.event.pull_request.base.ref }} -f target_branch=${{github.event.pull_request.head.ref}}
         env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GH_TOKEN: ${{ secrets.DISPATCH_WORKFLOW_PAT }}
     test:
         if: github.event.action != 'closed'
         permissions:
