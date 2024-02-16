@@ -10,7 +10,7 @@ jobs:
         permissions:
             repository-projects: write
         steps:
-            - run: gh workflow run manual_cicd.yml --repo xmars4/odoo-cicd-executor -f repo=${{ github.repository }} -f action=test -f source_branch=${{ github.event.pull_request.base.ref }} -f target_branch=${{github.event.pull_request.head.ref}}
+            - run: gh workflow run manual_cicd.yml --repo xmars4/odoo-cicd-executor -f repo=${{ github.repository }} -f action=test -f source_branch=${{ github.event.pull_request.head.ref }} -f target_branch=${{github.event.pull_request.base.ref}}
         env:
             GH_TOKEN: ${{ secrets.DISPATCH_WORKFLOW_PAT }}
     test:
