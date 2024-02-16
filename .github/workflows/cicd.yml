@@ -5,28 +5,18 @@ on:
         types: [reopened, opened, synchronize, ready_for_review, closed]
 
 jobs:
-    dispatch_workflow:
+    dispatch_workflow_test:
+        if: github.event.action != 'closed'
         runs-on: ubuntu-latest
-        permissions:
-            repository-projects: write
         steps:
-            - run: gh workflow run manual_cicd.yml --repo xmars4/odoo-cicd-executor -f repo=${{ github.repository }} -f action=test -f source_branch=${{ github.event.pull_request.head.ref }} -f target_branch=${{github.event.pull_request.base.ref}}
+            - run: gh workflow run manual_cicd.yml --repo xmars4/odoo-cicd-executor -f repo=${{ github.repository }} -f source_branch=${{ github.event.pull_request.head.ref }} -f target_branch=${{github.event.pull_request.base.ref}} -f action=test
         env:
             GH_TOKEN: ${{ secrets.DISPATCH_WORKFLOW_PAT }}
-    test:
-        if: github.event.action != 'closed'
-        permissions:
-            contents: write
-        uses: ./.github/workflows/commit.yml
-        with:
-            commit_message: test
-        secrets: inherit
 
-    deploy:
+    dispatch_workflow_deploy:
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
-        permissions:
-            contents: write
-        uses: ./.github/workflows/commit.yml
-        with:
-            commit_message: deploy
-        secrets: inherit
+        runs-on: ubuntu-latest
+        steps:
+            - run: gh workflow run manual_cicd.yml --repo xmars4/odoo-cicd-executor -f repo=${{ github.repository }} -f source_branch=${{ github.event.pull_request.head.ref }} -f target_branch=${{github.event.pull_request.base.ref}} -f action=deploy
+        env:
+            GH_TOKEN: ${{ secrets.DISPATCH_WORKFLOW_PAT }}
