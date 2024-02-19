@@ -21,6 +21,7 @@ jobs:
             GH_TOKEN: ${{ secrets.DISPATCH_WORKFLOW_PAT }}
 
     dispatch_workflow_deploy:
+        name: Dispatch Executor Workflow - Deploy
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
         runs-on: ubuntu-latest
         steps:
