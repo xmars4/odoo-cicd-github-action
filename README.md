@@ -11,7 +11,7 @@ This repository is set up for self-triggering CI/CD.
 
 2. Setup CI/CD
 
-- #### TODO : update descript ci/cd here
+- #### TODO : update description ci/cd here
 
 - Sometime we cannot authenticate by ssh
 
@@ -31,3 +31,6 @@ ssh-keygen -t ecdsa -b 521
 3. Deploy
 
 - follow instruction in the file [.deploy/README.md](.deploy/README.md)
+-
+
+.....
