@@ -9,7 +9,6 @@
     "version": "16.0.1.0.4",
     "author": "Therp BV, Tecnativa, Camptocamp, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/web",
-    "maintainers": ["ivantodorovich"],
     "license": "AGPL-3",
     "category": "Usability",
     "depends": ["web"],
