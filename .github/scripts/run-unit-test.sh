@@ -60,6 +60,8 @@ function main() {
     update_config_file
     start_containers
     wait_until_odoo_shutdown
+    # FIXME: remove cat commands
+    cat $ODOO_CONFIG_FILE
 
     cat $ODOO_LOG_FILE_HOST
 
