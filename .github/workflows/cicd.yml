@@ -2,6 +2,8 @@ name: ci/cd
 on:
     pull_request:
         types: [reopened, opened, synchronize, ready_for_review, closed]
+    push:
+        branches: [intrinsic-without-docker-compose]
 env:
     ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
     ODOO_CONFIG_FILE: ${{ github.workspace }}/.github/odoo/etc/odoo.conf
@@ -52,8 +54,9 @@ jobs:
 
             - name: Prepare data
               run: |
-                  bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
-                  bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
+                  bash $CICD_SCRIPTS_PATH/start-container.sh ${{env.ODOO_DOCKER_COMPOSE_PATH}} xmars/odoo:17 postgres:16
+              #   bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
+              #   bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
             - uses: isbang/compose-action@v1.5.1
               with:
                   compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
