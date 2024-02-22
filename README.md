@@ -1,7 +1,8 @@
 
 # ODOO + Github Action
 
-This repository is set up for  externally triggered CI/CD - by [odoo-cicd-executor](https://github.com/xmars4/odoo-cicd-executor) repo.
+- This repository is set up for  externally triggered CI/CD - by [odoo-cicd-executor](https://github.com/xmars4/odoo-cicd-executor) repo.
+- Contribution workflow: through Pull Request
 
 ## Config
 
@@ -10,6 +11,9 @@ This repository is set up for  externally triggered CI/CD - by [odoo-cicd-execut
     Follow the instruction in the file [.build/README.md](.build/README.md)
 
 1. On the newly created repo, go to *Settings -> Security -> Secrets and variables -> Actions*, add the following data:
+
+    *Repository secrets:*
+     - **DISPATCH_WORKFLOW_PAT**: personal access token that have permisison *repo: Full control of private repositories* of GitHub user *xmars4*
 
 1. Setup executor info
 
