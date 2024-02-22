@@ -65,6 +65,8 @@ function main() {
 
     docker ps -a
 
+    docker logs $(get_odoo_container_id) -n 1000
+
     cat $ODOO_LOG_FILE_HOST
 
     failed_message=$(
