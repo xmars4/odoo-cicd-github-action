@@ -14,7 +14,7 @@ Install docker and docker compose
 
 1. Clone the newly created repo to server
 
-1. Create a confile file named **odoo.conf** in folder **[etc/](etc/)**\
+1. Create a config file named **odoo.conf** in folder **[etc/](etc/)**\
 you can reference to the [sample file](etc/odoo.conf.sample)
 
 1. Create a file named **password.txt** in folder **[postgresql/](postgresql/)** to store DB password
