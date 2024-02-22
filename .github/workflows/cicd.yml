@@ -53,18 +53,9 @@ jobs:
                   username: ${{ env.DOCKERHUB_USERNAME }}
                   password: ${{ env.DOCKERHUB_TOKEN }}
 
-            - name: Prepare data
+            - name: Run Pylint test cases
               run: |
                   bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
-                  bash $CICD_SCRIPTS_PATH/run-pylint-test.sh
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-
-            - name: Run Pylint Test cases
-              run: |
                   bash $CICD_SCRIPTS_PATH/run-pylint-test.sh
 
     unit-test-at-install:
