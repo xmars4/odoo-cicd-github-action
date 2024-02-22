@@ -12,7 +12,7 @@ function update_config_file {
     --database $ODOO_TEST_DATABASE_NAME \
     --logfile "$ODOO_LOG_FILE_CONTAINER" \
     --load base,web \
-    --init test_lint \
+    --init test_lint,stock_no_negative \
     --test-tags /test_lint \
     --log-level warn" >>$ODOO_CONFIG_FILE
     echo " " >>$ODOO_CONFIG_FILE
