@@ -6,16 +6,6 @@ function get_cicd_config_for_odoo_addon {
     echo $(jq ".addons.${addon_name}.${option}" $CICD_ODOO_OPTIONS)
 }
 
-function docker_compose {
-    cd $ODOO_DOCKER_COMPOSE_PATH
-    docker compose "$@"
-}
-
-function docker_compose_clean {
-    docker_compose down -v
-    rm -f $ODOO_LOG_FILE_HOST
-}
-
 function get_config_value {
     param=$1
     grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_CONFIG_FILE"

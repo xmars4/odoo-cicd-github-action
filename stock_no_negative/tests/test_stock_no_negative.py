@@ -144,8 +144,7 @@ class TestStockNoNegative(TransactionCase):
                 ("location_id", "=", self.location_id.id),
             ]
         )
-        # self.assertEqual(quant.quantity, -100)
-        self.assertEqual(quant.quantity, -100123)
+        self.assertEqual(quant.quantity, -100)
 
     def test_true_allow_negative_stock_location(self):
         """Assert that negative stock levels are allowed when

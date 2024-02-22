@@ -8,8 +8,6 @@ env:
     ODOO_ADDONS_PATH: ${{ github.workspace }}
     ODOO_CONFIG_FILE: ${{ github.workspace }}/.github/odoo/etc/odoo.conf
     DOCKER_FOLDER: ${{ github.workspace }}/.github/odoo
-    ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.github/odoo
-    ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.github/odoo/docker-compose.yml
     ODOO_TEST_DATABASE_NAME: odoo_test
     ODOO_LOG_FILE_CONTAINER: /var/log/odoo/odoo.log
     ODOO_LOG_FILE_HOST: ${{ github.workspace }}/.github/odoo/logs/odoo.log
@@ -155,16 +153,7 @@ jobs:
                   source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
                   target: ${{env.LOCAL_BACKUP_FILE_PATH}}
 
-            - name: "Prepare data"
-              run: |
-                  bash $CICD_SCRIPTS_PATH/prepare-integration-test.sh
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-
-            - name: "Integration test"
+            - name: "Run Integration test"
               run: |
                   bash $CICD_SCRIPTS_PATH/run-integration-test.sh ${{env.LOCAL_BACKUP_FILE_PATH}}
 
