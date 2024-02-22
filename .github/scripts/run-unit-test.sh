@@ -33,13 +33,13 @@ function update_config_file {
     sed -i "s/^\s*without_demo\s*.*//g" $ODOO_CONFIG_FILE
 
     test_tags=
-
+    # fixme: move log level to error
     echo -en "\ncommand = \
     --stop-after-init \
     --workers 0 \
     --database $ODOO_TEST_DATABASE_NAME \
     --logfile "$ODOO_LOG_FILE_CONTAINER" \
-    --log-level error " >>$ODOO_CONFIG_FILE
+    --log-level info " >>$ODOO_CONFIG_FILE
 
     tagged_custom_addons=$(echo $custom_addons | sed "s/,/,\//g" | sed "s/^/\//")
     if [[ $test_type == 'at_install' ]]; then
