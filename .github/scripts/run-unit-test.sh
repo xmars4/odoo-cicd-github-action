@@ -33,13 +33,12 @@ function update_config_file {
     sed -i "s/^\s*without_demo\s*.*//g" $ODOO_CONFIG_FILE
 
     test_tags=
-    # fixme: move log level to error
     echo -en "\ncommand = \
     --stop-after-init \
     --workers 0 \
     --database $ODOO_TEST_DATABASE_NAME \
     --logfile "$ODOO_LOG_FILE_CONTAINER" \
-    --log-level info " >>$ODOO_CONFIG_FILE
+    --log-level error " >>$ODOO_CONFIG_FILE
 
     tagged_custom_addons=$(echo $custom_addons | sed "s/,/,\//g" | sed "s/^/\//")
     if [[ $test_type == 'at_install' ]]; then
@@ -60,14 +59,6 @@ function main() {
     update_config_file
     start_containers
     wait_until_odoo_shutdown
-    # FIXME: remove cat commands
-    cat $ODOO_CONFIG_FILE
-
-    docker ps -a
-
-    docker logs $(get_odoo_container_id) -n 1000
-
-    cat $ODOO_LOG_FILE_HOST
 
     failed_message=$(
         cat <<EOF
