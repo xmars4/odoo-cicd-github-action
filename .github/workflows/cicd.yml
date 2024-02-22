@@ -5,8 +5,9 @@ on:
     push:
         branches: [intrinsic-without-docker-compose]
 env:
-    ODOO_CUSTOM_ADDONS_PATH: ${{ github.workspace }}
+    ODOO_ADDONS_PATH: ${{ github.workspace }}
     ODOO_CONFIG_FILE: ${{ github.workspace }}/.github/odoo/etc/odoo.conf
+    DOCKER_FOLDER: ${{ github.workspace }}/.github/odoo
     ODOO_DOCKER_COMPOSE_PATH: ${{ github.workspace }}/.github/odoo
     ODOO_DOCKER_COMPOSE_FILE: ${{ github.workspace }}/.github/odoo/docker-compose.yml
     ODOO_TEST_DATABASE_NAME: odoo_test
@@ -54,10 +55,8 @@ jobs:
 
             - name: Prepare data
               run: |
-                  bash $CICD_SCRIPTS_PATH/start-container.sh ${{env.ODOO_DOCKER_COMPOSE_PATH}} xmars/odoo:17 postgres:16
-                  docker ps -a
-              #   bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
-              #   bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
+                  bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
+                  bash $CICD_SCRIPTS_PATH/run-pylint-test.sh
             - uses: isbang/compose-action@v1.5.1
               with:
                   compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}

@@ -26,8 +26,8 @@ get_config_value() {
 }
 
 function update_config_file_after_restoration {
-    install_addons=$(get_list_addons "$ODOO_CUSTOM_ADDONS_PATH")
-    custom_addons=$(get_list_addons_should_run_test "$ODOO_CUSTOM_ADDONS_PATH")
+    install_addons=$(get_list_addons "$ODOO_ADDONS_PATH")
+    custom_addons=$(get_list_addons_should_run_test "$ODOO_ADDONS_PATH")
     tagged_custom_addons=$(echo $custom_addons | sed "s/,/,\//g" | sed "s/^/\//")
     sed -i "s/^\s*command\s*.*//g" $ODOO_CONFIG_FILE
     echo -en "\ncommand = \

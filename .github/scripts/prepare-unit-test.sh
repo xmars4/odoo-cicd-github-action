@@ -7,14 +7,14 @@ function populate_variables() {
 }
 
 function set_list_addons {
-    custom_addons=$(get_list_addons_should_run_test "$ODOO_CUSTOM_ADDONS_PATH")
+    custom_addons=$(get_list_addons_should_run_test "$ODOO_ADDONS_PATH")
     declare -g custom_addons
     if [ -z $custom_addons ]; then
         show_separator "Can't find any Odoo custom modules, please recheck your config!"
         exit 1
     fi
 
-    ignore_demo_data_addons=$(get_list_addons_ignore_demo_data "$ODOO_CUSTOM_ADDONS_PATH")
+    ignore_demo_data_addons=$(get_list_addons_ignore_demo_data "$ODOO_ADDONS_PATH")
     declare -g without_demo_addons=
     if [[ -n $ignore_demo_data_addons ]]; then
         without_demo_addons=$ignore_demo_data_addons
