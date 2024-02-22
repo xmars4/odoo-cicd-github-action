@@ -71,17 +71,9 @@ jobs:
                   username: ${{ env.DOCKERHUB_USERNAME }}
                   password: ${{ env.DOCKERHUB_TOKEN }}
 
-            - name: Prepare data
-              run: |
-                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "at_install"
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
             - name: Run Unit test cases
               run: |
-                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "At Install"
+                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "at_install"
 
     unit-test-post-install:
         runs-on: ubuntu-latest
@@ -96,18 +88,9 @@ jobs:
                   username: ${{ env.DOCKERHUB_USERNAME }}
                   password: ${{ env.DOCKERHUB_TOKEN }}
 
-            - name: Prepare data
-              run: |
-                  bash $CICD_SCRIPTS_PATH/prepare-unit-test.sh "post_install"
-            - uses: isbang/compose-action@v1.5.1
-              with:
-                  compose-file: ${{ env.ODOO_DOCKER_COMPOSE_FILE }}
-                  up-flags: "--quiet-pull"
-                  down-flags: "--volumes"
-
             - name: Run Unit test cases
               run: |
-                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "Post Install"
+                  bash $CICD_SCRIPTS_PATH/run-unit-test.sh "post_install"
 
     integration-test:
         runs-on: ubuntu-latest

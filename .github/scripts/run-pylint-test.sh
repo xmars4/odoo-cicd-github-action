@@ -12,9 +12,9 @@ function update_config_file {
     --database $ODOO_TEST_DATABASE_NAME \
     --logfile "$ODOO_LOG_FILE_CONTAINER" \
     --load base,web \
-    --init test_lint,stock_no_negative \
+    --init test_lint \
     --test-tags /test_lint \
-    --log-level warn" >>$ODOO_CONFIG_FILE
+    --log-level error" >>$ODOO_CONFIG_FILE
     echo " " >>$ODOO_CONFIG_FILE
 }
 
@@ -23,7 +23,6 @@ function main() {
     update_config_file
     start_containers
     wait_until_odoo_shutdown
-    cat $ODOO_LOG_FILE_HOST
 
     failed_message=$(
         cat <<EOF
