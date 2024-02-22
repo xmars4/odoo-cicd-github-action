@@ -61,6 +61,8 @@ function main() {
     start_containers
     wait_until_odoo_shutdown
 
+    cat $ODOO_LOG_FILE_HOST
+
     failed_message=$(
         cat <<EOF
 🐞 $type_message: A few unit test cases for the [PR \\#$PR_NUMBER]($PR_URL) did not pass\\! 🐞
