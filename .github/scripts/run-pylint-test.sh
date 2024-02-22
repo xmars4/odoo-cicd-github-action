@@ -23,6 +23,7 @@ function main() {
     update_config_file
     start_containers
     wait_until_odoo_shutdown
+    cat $ODOO_CONFIG_FILE
     failed_message=$(
         cat <<EOF
 🐞 A few pylint test cases of the [PR \\#$PR_NUMBER]($PR_URL) did not pass\\! 🐞
