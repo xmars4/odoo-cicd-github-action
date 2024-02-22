@@ -4,7 +4,7 @@
 
 
 {
-    "name": "Stock Disallow Negative\\\\\\\\\\\\\/////////////////",
+    "name": "Stock Disallow Negative",
     "version": "16.0.1.0.2",
     "category": "Inventory, Logistic, Storage",
     "license": "AGPL-3",
