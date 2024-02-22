@@ -1,7 +1,8 @@
 
 # ODOO + Github Action
 
-This repository is set up for  externally triggered CI/CD - by [odoo-cicd-executor](https://github.com/xmars4/odoo-cicd-executor) repo.
+- This repository is set up for  externally triggered CI/CD - by [odoo-cicd-executor](https://github.com/xmars4/odoo-cicd-executor) repo.
+- Contribution workflow: through Pull Request
 
 ## Config
 
