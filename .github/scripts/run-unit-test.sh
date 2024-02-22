@@ -63,6 +63,8 @@ function main() {
     # FIXME: remove cat commands
     cat $ODOO_CONFIG_FILE
 
+    docker ps -a
+
     cat $ODOO_LOG_FILE_HOST
 
     failed_message=$(
