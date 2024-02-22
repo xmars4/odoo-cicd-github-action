@@ -3,7 +3,6 @@ on:
     pull_request:
         types: [reopened, opened, synchronize, ready_for_review, closed]
 
-    push:
 env:
     workflow_repo: xmars4/odoo-cicd-executor
     workflow_file: private-cicd.yml
