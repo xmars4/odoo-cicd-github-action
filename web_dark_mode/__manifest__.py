@@ -9,6 +9,7 @@
     "website": "https://github.com/OCA/web",
     "author": "initOS GmbH, Odoo Community Association (OCA)",
     "depends": ["web"],
+    "hihi_kaka": False,
     "installable": True,
     "assets": {
         "web.dark_mode_assets_common": [
