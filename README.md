@@ -1,37 +1,20 @@
 
 # ODOO + Github Action
 
-This repository is set up for self-triggering CI/CD.
+This repository is set up for  externally triggered CI/CD - by [odoo-cicd-executor](https://github.com/xmars4/odoo-cicd-executor) repo.
 
-## Setup
+## Config
 
-1. Build image
+1. Build and publish custom Odoo image
 
-- follow instruction in the file [.build/README.md](.build/README.md)
+    Follow the instruction in the file [.build/README.md](.build/README.md)
 
-2. Setup CI/CD
+1. On the newly created repo, go to *Settings -> Security -> Secrets and variables -> Actions*, add the following data:
 
-- #### TODO : update description ci/cd here
+1. Setup executor info
 
-- Sometime we cannot authenticate by ssh
+    Follow the instruction in the file [odoo-cicd-executor/README.md](https://github.com/xmars4/odoo-cicd-executor/blob/production/README.md)
 
-```
-https://github.com/garygrossgarten/github-action-ssh/issues/20
-    at SSH2Stream.Writable.write (node:internal/streams/writable:336:10) {
-  level: 'client-authentication'
-```
+1. Deploy
 
-- Solution:
-
-```bash
-# gen ssh-key by different algorithm
-ssh-keygen -t ecdsa -b 521
-```
-
-3. Deploy
-
-- follow instruction in the file [.deploy/README.md](.deploy/README.md)
--
-
-........
-.
+    Follow the instruction in the file [.deploy/README.md](.deploy/README.md)

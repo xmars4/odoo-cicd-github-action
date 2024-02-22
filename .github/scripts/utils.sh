@@ -6,16 +6,6 @@ function get_cicd_config_for_odoo_addon {
     echo $(jq ".addons.${addon_name}.${option}" $CICD_ODOO_OPTIONS)
 }
 
-function docker_compose {
-    cd $ODOO_DOCKER_COMPOSE_PATH
-    docker compose "$@"
-}
-
-function docker_compose_clean {
-    docker_compose down -v
-    rm -f $ODOO_LOG_FILE_HOST
-}
-
 function get_config_value {
     param=$1
     grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_CONFIG_FILE"
@@ -122,17 +112,12 @@ function show_separator {
 }
 
 function get_odoo_container_id {
-    docker_compose ps -q -a | xargs docker inspect --format '{{.Id}} {{.Config.Image}}' | awk -v img="${ODOO_IMAGE_TAG}" '$2 == img {print $1}'
+    docker ps -q -a | xargs docker inspect --format '{{.Id}} {{.Config.Image}}' | awk -v img="${ODOO_IMAGE_TAG}" '$2 == img {print $1}'
 }
 
 function docker_odoo_exec {
     odoo_container_id=$(get_odoo_container_id)
     docker exec $odoo_container_id sh -c "$@"
-}
-
-function update_services_tag_docker_compose {
-    sed -i "s|<db_image_tag>|$DB_IMAGE_TAG|g" $ODOO_DOCKER_COMPOSE_FILE
-    sed -i "s|<odoo_image_tag>|$ODOO_IMAGE_TAG|g" $ODOO_DOCKER_COMPOSE_FILE
 }
 
 function analyze_log_file {
@@ -154,6 +139,30 @@ function analyze_log_file {
         exit 1
     fi
     show_separator "$success_message"
+}
+
+function start_db_container() {
+    docker run -d \
+        -p 5432:5432 \
+        --mount type=bind,source=$DOCKER_FOLDER/postgresql,target=/etc/postgresql \
+        -e POSTGRES_PASSWORD=odoo -e POSTGRES_USER=odoo -e POSTGRES_DB=postgres \
+        --name db \
+        $DB_IMAGE_TAG \
+        -c 'config_file=/etc/postgresql/postgresql.conf'
+}
+
+function start_odoo_container() {
+    docker run -d \
+        --mount type=bind,source=$ODOO_ADDONS_PATH,target=/mnt/custom-addons \
+        --mount type=bind,source=$DOCKER_FOLDER/etc,target=/etc/odoo \
+        --mount type=bind,source=$DOCKER_FOLDER/logs,target=/var/log/odoo \
+        --link db:db \
+        $ODOO_IMAGE_TAG
+}
+
+function start_containers() {
+    start_db_container
+    start_odoo_container
 }
 
 # ------------------ Telegram functions -------------------------

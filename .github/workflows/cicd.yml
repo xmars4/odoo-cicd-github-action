@@ -1,7 +1,6 @@
 name: ci/cd
 on:
     pull_request:
-        branches: [extrinsic]
         types: [reopened, opened, synchronize, ready_for_review, closed]
 env:
     workflow_repo: xmars4/odoo-cicd-executor
@@ -26,6 +25,5 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - run: gh workflow run ${{ env.workflow_file }} --repo ${{ env.workflow_repo }} -f repo=${{ env.repo_name }} -f source_branch=${{ env.source_branch }} -f target_branch=${{ env.target_branch }}  -f commit_sha=${{ github.event.pull_request.merge_commit_sha }} -f action=deploy
-            # https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
         env:
             GH_TOKEN: ${{ secrets.DISPATCH_WORKFLOW_PAT }}

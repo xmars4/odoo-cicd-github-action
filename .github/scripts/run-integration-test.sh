@@ -16,6 +16,11 @@ populate_variables() {
     declare -g data_dir=${data_dir:-'/var/lib/odoo'}
 }
 
+function update_config_file {
+    sed -i "s/^\s*command\s*.*//g" $ODOO_CONFIG_FILE
+    sed -i "s/^\s*db_name\s*.*//g" $ODOO_CONFIG_FILE
+}
+
 get_config_value() {
     param=$1
     grep -q -E "^\s*\b${param}\b\s*=" "$ODOO_CONFIG_FILE"
@@ -26,8 +31,8 @@ get_config_value() {
 }
 
 function update_config_file_after_restoration {
-    install_addons=$(get_list_addons "$ODOO_CUSTOM_ADDONS_PATH")
-    custom_addons=$(get_list_addons_should_run_test "$ODOO_CUSTOM_ADDONS_PATH")
+    install_addons=$(get_list_addons "$ODOO_ADDONS_PATH")
+    custom_addons=$(get_list_addons_should_run_test "$ODOO_ADDONS_PATH")
     tagged_custom_addons=$(echo $custom_addons | sed "s/,/,\//g" | sed "s/^/\//")
     sed -i "s/^\s*command\s*.*//g" $ODOO_CONFIG_FILE
     echo -en "\ncommand = \
@@ -58,7 +63,7 @@ config_psql_without_password() {
 
 restart_instance() {
     update_config_file_after_restoration
-    docker_compose restart
+    docker restart $(get_odoo_container_id)
 }
 
 create_empty_db() {
@@ -89,6 +94,8 @@ restore_backup() {
 
 main() {
     populate_variables $@
+    update_config_file
+    start_containers
     restore_backup
     wait_until_odoo_shutdown
 
