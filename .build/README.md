@@ -12,11 +12,11 @@ Install docker and docker compose
 
 ## How to build and publish customized Odoo image on Docker hub
 
-1. Clone this repo
+1. Create a new repository using this repository as a template
 
-2. Update required libs to [requirements.txt](requirements.txt) and [entrypoint.sh](entrypoint.sh) files before build the image
+1. Update required libs to [requirements.txt](requirements.txt) and [Dockerfile](Dockerfile) files before build the image
 
-3. Build and push image to docker registry
+1. Build and push image to docker registry
 
     ```shell
     # replace <github username> and <repository name> with correct values
@@ -30,8 +30,4 @@ Install docker and docker compose
     docker push $image_tag
     ```
 
-4. Replace *$image_tag* value to below file:
-
-    - [../.deploy/docker-compose.yml](../.deploy/docker-compose.yml#L21)
-
-5. Commit change to Github
+1. Commit change to Github
