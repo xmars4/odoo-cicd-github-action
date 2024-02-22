@@ -38,7 +38,7 @@ This repository is set up for self-triggering CI/CD (GitHub Actions workflow).
 
 1. Sometime we cannot authenticate by ssh
 
-```
+```shell
 https://github.com/garygrossgarten/github-action-ssh/issues/20
     at SSH2Stream.Writable.write (node:internal/streams/writable:336:10) {
   level: 'client-authentication'
