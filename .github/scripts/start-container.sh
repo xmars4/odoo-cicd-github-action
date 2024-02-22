@@ -18,15 +18,26 @@ populate_variables() {
 }
 
 start_db_container() {
+    cd ${docker_folder}
     docker run -d \
         -p 5432:5432 -v ./postgresql:/etc/postgresql -e POSTGRES_PASSWORD=odoo -e POSTGRES_USER=odoo -e POSTGRES_DB=postgres \
         ${db_image} \
         -c 'config_file=/etc/postgresql/postgresql.conf'
 }
 
+start_odoo_container() {
+    cd ${docker_folder}
+    docker run -d \
+        -v ../../:/mnt/custom-addons \
+        -v ./etc:/etc/odoo \
+        -v ./logs:/var/log/odoo \
+        ${odoo_image}
+}
+
 main() {
     populate_variables "$@"
     start_db_container
+    start_odoo_container
 }
 
 main "$@"

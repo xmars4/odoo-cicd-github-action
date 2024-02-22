@@ -55,6 +55,7 @@ jobs:
             - name: Prepare data
               run: |
                   bash $CICD_SCRIPTS_PATH/start-container.sh ${{env.ODOO_DOCKER_COMPOSE_PATH}} xmars/odoo:17 postgres:16
+                  docker ps -a
               #   bash $CICD_SCRIPTS_PATH/precheck-workflow.sh
               #   bash $CICD_SCRIPTS_PATH/prepare-pylint-test.sh
             - uses: isbang/compose-action@v1.5.1
