@@ -28,7 +28,7 @@ start_db_container() {
 start_odoo_container() {
     cd ${docker_folder}
     docker run -d \
-        -v ../../:/mnt/custom-addons \
+        --mount type=bind,source=../..,target=/mnt/custom-addons \
         -v ./etc:/etc/odoo \
         -v ./logs:/var/log/odoo \
         ${odoo_image}
