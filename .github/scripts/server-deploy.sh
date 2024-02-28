@@ -101,10 +101,12 @@ pull_latest_code() {
 
     # try to pull code with default options
     # if failed -> setup other remote ssh and try again
-    git pull aaaaa
+    echo "try to pull code with default options"
+    git pull
     pull_success=$?
 
     # try to pull with custom remote name
+    echo "ry to pull with custom remote name"
     git pull $custom_repo_remote_name $current_branch
     pull_success=$?
 
