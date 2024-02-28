@@ -10,7 +10,7 @@ server_odoo_db_name=$6
 ssh_folder="$HOME/.ssh"
 original_repo_remote_name="origin"
 custom_repo_remote_name="origin-ssh"
-custom_repo_host="ssh.github.com"
+custom_repo_host="ssh.cicd.github.com"
 CUSTOM_ADDONS=
 
 function get_list_addons {
@@ -79,6 +79,7 @@ Host $custom_repo_host
 }
 
 setup_git_ssh_remote() {
+    git remote remove $custom_repo_remote_name
     remote_url=$(get_original_remote_url)
     if ! [[ $remote_url =~ ^git@ ]]; then
         repo_name=$(echo "$remote_url" | sed "s/.*:\/\/[^/]*\///" | sed "s/\.git$//")
