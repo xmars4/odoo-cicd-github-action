@@ -62,9 +62,6 @@ write_custom_git_host_to_ssh_config() {
     new_key_file_path="$ssh_folder/$git_private_key_file_name"
     cp "$git_private_key_file" "$ssh_folder"
 
-    #fixme:
-    ls -lah $ssh_folder
-
     original_repo_host=$1
     config_value="
 \n# Custom git host for CI/CD process
@@ -105,18 +102,12 @@ pull_latest_code() {
 
     # try to pull code with default options
     # if failed -> setup other remote ssh and try again
-    echo "try to pull code with default options"
     git pull
     pull_success=$?
 
     # try to pull with custom remote name
-    echo "ry to pull with custom remote name"
     git pull $custom_repo_remote_name $current_branch
     pull_success=$?
-
-    echo "wtf pull success value"
-    echo $pull_success
-    echo ">>>>>>>>> <<<<<<<<<<<<"
 
     if [[ $pull_success -ne 0 ]]; then
         echo "====================="
