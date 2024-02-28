@@ -177,6 +177,7 @@ function create_private_keyfile_from_content() {
     ls -lah $(dirname $key_file_path)
     >$key_file_path
     echo "$content" >>$key_file_path
+    cat $key_file_path
     echo $key_file_path
 }
 
