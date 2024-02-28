@@ -173,8 +173,9 @@ function create_private_keyfile_from_content() {
     echo $key_file_path
     mkdir -p $(dirname $key_file_path)
     ls -lah $(dirname $key_file_path)
-    rm -rf $key_file_path
     touch $key_file_path && chmod 600 $key_file_path
+    ls -lah $(dirname $key_file_path)
+    >$key_file_path
     echo $content >>$key_file_path
     echo $key_file_path
 }
