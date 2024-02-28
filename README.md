@@ -17,6 +17,7 @@ This repository is set up for self-triggering CI/CD (GitHub Actions workflow).
         - **DOCKERHUB_TOKEN**: Docker hub registry token
         - **SERVER_DB_PASSWORD**: Server database password for the backup process
         - **SERVER_PRIVATE_KEY**: Server private key file for access to the server through SSH or SCP protocol
+        - **SSH_PRIVATE_KEY_GITHUB**: Private SSH key to allow access to GitHub
         - **TELEGRAM_CHANNEL_ID**: Telegram channel ID for notifications through the Telegram channel
         - **TELEGRAM_TOKEN**: Telegram BOT token (the BOT added to this TELEGRAM_CHANNEL_ID)
 

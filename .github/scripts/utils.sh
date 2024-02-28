@@ -165,6 +165,16 @@ function start_containers() {
     start_odoo_container
 }
 
+function create_private_keyfile_from_content() {
+    content="$1"
+    key_file_path="$2"
+    mkdir -p $(dirname $key_file_path)
+    touch $key_file_path && chmod 600 $key_file_path
+    >$key_file_path
+    echo "$content" >>$key_file_path
+    echo $key_file_path
+}
+
 # ------------------ Telegram functions -------------------------
 function send_file_telegram {
     bot_token=$1

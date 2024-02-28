@@ -26,13 +26,14 @@ env:
     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     SERVER_PRIVATE_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
     SERVER_DB_PASSWORD: ${{ secrets.SERVER_DB_PASSWORD }}
+    PRIVATE_KEY_FOR_GITHUB_AUTHEN: ${{secrets.PRIVATE_KEY_FOR_GITHUB_AUTHEN}}
 
     ODOO_IMAGE_TAG: ${{ vars.ODOO_IMAGE_TAG }}
     DB_IMAGE_TAG: ${{ vars.DB_IMAGE_TAG }}
 
     SERVER_HOST: ${{ vars.SERVER_HOST }}
     SERVER_USER: ${{ vars.SERVER_USER }}
-    SERVER_PORT: ${{ vars.SERVER_PORT }}
+    SERVER_SSH_PORT: ${{ vars.SERVER_SSH_PORT }}
     SERVER_DEPLOY_PATH: ${{ vars.SERVER_DEPLOY_PATH }}
     SERVER_ODOO_URL: ${{ vars.SERVER_ODOO_URL }}
     SERVER_ODOO_DB_NAME: ${{ vars.SERVER_ODOO_DB_NAME }}
@@ -136,22 +137,18 @@ jobs:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
-                  port: ${{ env.SERVER_PORT }}
+                  port: ${{ env.SERVER_SSH_PORT }}
                   command_timeout: 30m
                   script: |
                       bash ${{ env.SERVER_BACKUP_SCRIPT_PATH }} "${{env.SERVER_DEPLOY_PATH}}" "${{env.SERVER_ODOO_DB_NAME}}" "${{env.SERVER_DB_PASSWORD}}" "${{env.ODOO_IMAGE_TAG}}" ${{ env.GITHUB_RUN_ATTEMPT }} "${{ env.SERVER_BACKUP_FOLDER }}"
 
             - name: "Download backup file"
-              uses: nicklasfrahm/scp-action@main
-              with:
-                  direction: download
-                  host: ${{ env.SERVER_HOST }}
-                  username: ${{ env.SERVER_USER }}
-                  key: ${{ env.SERVER_PRIVATE_KEY }}
-                  insecure_ignore_fingerprint: true
-                  action_timeout: 30m
-                  source: ${{env.SERVER_LATEST_BACKUP_FILE_PATH}}
-                  target: ${{env.LOCAL_BACKUP_FILE_PATH}}
+              env:
+                  ssh_key: ${{ secrets.SERVER_PRIVATE_KEY }}
+              run: |
+                  keyfile_path=${{ github.workspace }}/$(date +%s)_key
+                  bash ${{ env.CICD_UTILS_SCRIPTS_PATH }} exec create_private_keyfile_from_content "$ssh_key" "$keyfile_path"
+                  scp -o StrictHostKeyChecking=no -P ${{ env.SERVER_SSH_PORT }} -i $keyfile_path ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.SERVER_LATEST_BACKUP_FILE_PATH }} ${{ env.LOCAL_BACKUP_FILE_PATH }}
 
             - name: "Run Integration test"
               run: |
@@ -162,6 +159,7 @@ jobs:
         needs: [integration-test]
         env:
             SERVER_DEPLOY_SCRIPT_PATH: /tmp/odoo/cicd/${{ github.repository_id }}/deploy.sh
+            SSH_PRIVATE_KEY_GITHUB: /tmp/odoo/cicd/${{ github.repository_id }}/github_privatekey
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -175,6 +173,18 @@ jobs:
                   username: ${{ env.SERVER_USER }}
                   privateKey: ${{ env.SERVER_PRIVATE_KEY }}
 
+            - name: "Upload GitHub private key authen to Server"
+              env:
+                  private_key_for_github_authen: ${{ env.PRIVATE_KEY_FOR_GITHUB_AUTHEN }}
+                  ssh_key: ${{ env.SERVER_PRIVATE_KEY }}
+              run: |
+                  keyfile_path=/tmp/$(date +%s)
+                  private_key_dir=$(dirname $SSH_PRIVATE_KEY_GITHUB)
+                  bash ${{ env.CICD_UTILS_SCRIPTS_PATH }} exec create_private_keyfile_from_content "$ssh_key" "$keyfile_path"
+                  bash ${{ env.CICD_UTILS_SCRIPTS_PATH }} exec create_private_keyfile_from_content "$private_key_for_github_authen" "$SSH_PRIVATE_KEY_GITHUB"
+                  ssh -o StrictHostKeyChecking=no -p ${{ env.SERVER_SSH_PORT }} -i "$keyfile_path" ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "mkdir -p $private_key_dir"
+                  scp -o StrictHostKeyChecking=no -P ${{ env.SERVER_SSH_PORT }} -i $keyfile_path "$SSH_PRIVATE_KEY_GITHUB" ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:$private_key_dir
+
             - name: "Deploy to server"
               uses: appleboy/ssh-action@v1.0.0
               env:
@@ -186,7 +196,7 @@ jobs:
                   host: ${{ env.SERVER_HOST }}
                   username: ${{ env.SERVER_USER }}
                   key: ${{ env.SERVER_PRIVATE_KEY }}
-                  port: ${{ env.SERVER_PORT }}
+                  port: ${{ env.SERVER_SSH_PORT }}
                   script: |
                       bash ${{env.SERVER_DEPLOY_SCRIPT_PATH}} "${{env.SERVER_DOCKER_COMPOSE_PATH}}" "${{env.SERVER_CUSTOM_ADDONS_PATH}}" "${{env.SERVER_CONFIG_FILE}}" "dump_private_key" "${{ env.SERVER_ODOO_URL }}" "${{ env.SERVER_ODOO_DB_NAME }}"
             - name: The Deploy step has failed
