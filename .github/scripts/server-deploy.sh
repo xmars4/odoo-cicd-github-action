@@ -113,6 +113,10 @@ pull_latest_code() {
     git pull $custom_repo_remote_name $current_branch
     pull_success=$?
 
+    echo "wtf pull success value"
+    echo $pull_success
+    echo ">>>>>>>>> <<<<<<<<<<<<"
+
     if [[ $pull_success -ne 0 ]]; then
         echo "====================="
         echo "setup ssh remote"
