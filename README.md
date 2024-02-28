@@ -22,4 +22,3 @@
 1. Deploy
 
     Follow the instruction in the file [.deploy/README.md](.deploy/README.md)
-....
