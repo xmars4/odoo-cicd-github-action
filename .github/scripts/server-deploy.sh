@@ -2,7 +2,7 @@
 server_docker_compose_path=$1 # the path to folder container Odoo docker-compose.yml file
 server_custom_addons_path=$2  # the absolute path to source code, also the git repository
 server_config_file=$3         # the path to Odoo config file
-# fixme: can't pass private key file from github action to server like Jenkins, solution ??
+# fixme: can't pass private key file from github action to server like Jenkins, solution ??22
 git_private_key_file=$4 # private key on server use to authenticate on Github
 server_odoo_url=$5      # odoo service url, to check service is up or not
 server_odoo_db_name=$6
@@ -10,7 +10,7 @@ server_odoo_db_name=$6
 ssh_folder="$HOME/.ssh"
 original_repo_remote_name="origin"
 custom_repo_remote_name="origin-ssh"
-custom_repo_host="ssh.github.com"
+custom_repo_host="ssh.cicd.github.com"
 CUSTOM_ADDONS=
 
 function get_list_addons {
@@ -76,6 +76,7 @@ Host $custom_repo_host
 }
 
 setup_git_ssh_remote() {
+    git remote remove $custom_repo_remote_name
     remote_url=$(get_original_remote_url)
     if ! [[ $remote_url =~ ^git@ ]]; then
         repo_name=$(echo "$remote_url" | sed "s/.*:\/\/[^/]*\///" | sed "s/\.git$//")
