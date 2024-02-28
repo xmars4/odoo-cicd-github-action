@@ -101,7 +101,7 @@ pull_latest_code() {
 
     # try to pull code with default options
     # if failed -> setup other remote ssh and try again
-    git pull
+    git pull aaaaa
     pull_success=$?
 
     # try to pull with custom remote name
