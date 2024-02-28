@@ -58,12 +58,16 @@ add_custom_repo_remote() {
 }
 
 write_custom_git_host_to_ssh_config() {
+    git_private_key_file_name=$(basename "$git_private_key_file")
+    new_key_file_path="$ssh_folder/$git_private_key_file_name"
+    cp "$git_private_key_file" "$ssh_folder"
+
     original_repo_host=$1
     config_value="
 \n# Custom git host for CI/CD process
 Host $custom_repo_host
   Hostname $original_repo_host
-  IdentityFile $git_private_key_file
+  IdentityFile $new_key_file_path
   IdentitiesOnly yes\n
     "
     if ! grep -q "Host $custom_repo_host" "$ssh_folder/config"; then
@@ -95,14 +99,16 @@ pull_latest_code() {
         exit 1
     fi
 
-    is_first_try_success=1
-    if [[ $remote_url =~ ^git@ ]]; then
-        # currently, this repo has a remote with ssh url
-        # so we try to use it first, before setup other remote ssh
-        git pull $original_repo_remote_name $current_branch
-        is_first_try_success=$?
-    fi
-    if [[ $is_first_try_success -ne 0 ]]; then
+    # try to pull code with default options
+    # if failed -> setup other remote ssh and try again
+    git pull
+    pull_success=$?
+
+    # try to pull with custom remote name
+    git pull $custom_repo_remote_name $current_branch
+    pull_success=$?
+
+    if [[ $pull_success -ne 0 ]]; then
         setup_git_ssh_remote
         git pull $custom_repo_remote_name $current_branch
     fi
