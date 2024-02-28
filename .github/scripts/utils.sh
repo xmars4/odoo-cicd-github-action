@@ -176,7 +176,7 @@ function create_private_keyfile_from_content() {
     touch $key_file_path && chmod 600 $key_file_path
     ls -lah $(dirname $key_file_path)
     >$key_file_path
-    echo $content >>$key_file_path
+    echo "$content" >>$key_file_path
     echo $key_file_path
 }
 
