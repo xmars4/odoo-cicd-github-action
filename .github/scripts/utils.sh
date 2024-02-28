@@ -166,6 +166,7 @@ function start_containers() {
 }
 
 function create_private_keyfile_from_content() {
+    # FIXME: error
     content="$1"
     key_file_path="$2"
     mkdir -p $(dirname $key_file_path)
