@@ -12,7 +12,7 @@ This repository is set up for self-triggering CI/CD (GitHub Actions workflow).
 1. Setup GitHub Actions secrets and variables
 
     On the newly created repo, go to *Settings -> Security -> Secrets and variables -> Actions*, add the following data:
-    - *Environment secrets:*
+    - *Repository secrets:*
         - **DOCKERHUB_USERNAME**: Docker hub registry username ( for access custom Odoo image)
         - **DOCKERHUB_TOKEN**: Docker hub registry token
         - **SERVER_DB_PASSWORD**: Server database password for the backup process
@@ -21,7 +21,7 @@ This repository is set up for self-triggering CI/CD (GitHub Actions workflow).
         - **TELEGRAM_CHANNEL_ID**: Telegram channel ID for notifications through the Telegram channel
         - **TELEGRAM_TOKEN**: Telegram BOT token (the BOT added to this TELEGRAM_CHANNEL_ID)
 
-    - *Environment variables:*
+    - *Repository variables:*
         - **DB_IMAGE_TAG**: Postgres image tag name
         - **ODOO_IMAGE_TAG**: Odoo image tag name
         - **SERVER_DEPLOY_PATH**: Server deployment path, the folder containing the docker-compose.yml file
