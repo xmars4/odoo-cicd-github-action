@@ -9,7 +9,7 @@ env:
     repo_name: ${{ github.repository }}
     source_branch: ${{ github.event.pull_request.head.ref }}
     target_branch: ${{ github.event.pull_request.base.ref }}
-
+# fixme: send pr_number and pr_url to executor
 jobs:
     dispatch_workflow_test:
         name: Dispatch Executor Workflow - Test
