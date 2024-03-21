@@ -101,7 +101,7 @@ main() {
 
     failed_message=$(
         cat <<EOF
-🐞The [PR \\#$PR_NUMBER]($PR_URL) was merged but the deployment to the server failed\\!🐞
+🐞[Integration Test] The [PR \\#$PR_NUMBER]($PR_URL) was merged but the database test failed\\!🐞
 Please take a look at the attached log file🔬
 EOF
     )

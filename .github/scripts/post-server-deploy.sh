@@ -10,7 +10,7 @@ function main {
         message=$(
             cat <<EOF
 🐞 The [PR \\#$PR_NUMBER]($PR_URL) was merged but the deployment to the server failed\\! 🐞
-Please take a look into [Job log](${GITHUB_STEP_SUMMARY}))🔬
+Please take a look into the actions log🔬
 EOF
         )
         send_message_telegram_default "$message"
