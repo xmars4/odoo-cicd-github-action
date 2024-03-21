@@ -9,14 +9,16 @@ env:
     repo_name: ${{ github.repository }}
     source_branch: ${{ github.event.pull_request.head.ref }}
     target_branch: ${{ github.event.pull_request.base.ref }}
-# fixme: send pr_number and pr_url to executor
+    pr_number: ${{ github.event.pull_request.number }}
+    pr_url: ${{ github.event.pull_request.html_url }}
+
 jobs:
     dispatch_workflow_test:
         name: Dispatch Executor Workflow - Test
         if: github.event.action != 'closed'
         runs-on: ubuntu-latest
         steps:
-            - run: gh workflow run ${{ env.workflow_file }} --repo ${{ env.workflow_repo }} -f repo=${{ env.repo_name }} -f source_branch=${{ env.source_branch }} -f target_branch=${{ env.target_branch }} -f commit_sha=${{ github.event.pull_request.head.sha }} -f action=test
+            - run: gh workflow run ${{ env.workflow_file }} --repo ${{ env.workflow_repo }} -f repo=${{ env.repo_name }} -f source_branch=${{ env.source_branch }} -f target_branch=${{ env.target_branch }} -f commit_sha=${{ github.event.pull_request.head.sha }} -f pr_number=${{ env.pr_number }} -f pr_url=${{ env.pr_url }} -f action=test
         env:
             GH_TOKEN: ${{ secrets.DISPATCH_WORKFLOW_PAT }}
 
@@ -25,6 +27,6 @@ jobs:
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
         runs-on: ubuntu-latest
         steps:
-            - run: gh workflow run ${{ env.workflow_file }} --repo ${{ env.workflow_repo }} -f repo=${{ env.repo_name }} -f source_branch=${{ env.source_branch }} -f target_branch=${{ env.target_branch }}  -f commit_sha=${{ github.event.pull_request.merge_commit_sha }} -f action=deploy
+            - run: gh workflow run ${{ env.workflow_file }} --repo ${{ env.workflow_repo }} -f repo=${{ env.repo_name }} -f source_branch=${{ env.source_branch }} -f target_branch=${{ env.target_branch }}  -f commit_sha=${{ github.event.pull_request.merge_commit_sha }} -f pr_number=${{ env.pr_number }} -f pr_url=${{ env.pr_url }} -f action=deploy
         env:
             GH_TOKEN: ${{ secrets.DISPATCH_WORKFLOW_PAT }}
